@@ -1,33 +1,38 @@
 import gulp from 'gulp';
-import browserSync from 'browser-sync';
 import plumber from 'gulp-plumber';
+import browserSync from 'browser-sync';
 import babel from 'gulp-babel';
 
-const bsReload = browserSync.reload;
+const bsCreate = browserSync.create();
 
 
 gulp.task('browser-sync', () => {
-	browserSync.init({
+	bsCreate.init(null, {
 		server: {
-			proxy: './htdocs/'
+			baseDir: 'htdocs/'
 		}
 	})
 });
 
 
 gulp.task('babel', () => {
-	return gulp.src('./htdocs/**/.js')
+	return gulp.src([
+			'./htdocs/js/*.js',
+			'!./htdocs/js/lib/*.js'
+		])
 		.pipe(plumber())
 		.pipe(babel({
-			preset: ['es2015']
+			presets: ['es2015']
 		}))
-		.pipe(gulp.dest('./app/js/'))
+		.pipe(gulp.dest('./app/js'));
 });
 
 
-gulp.task('default', ['browser-sync', 'babel'], () => {
-	gulp.watch(['./htdocs/js/**/.*js', './htdocs/**/*.css'], ['browser-sync', 'babel']);
-	gulp.watch('./htdocs/**', () => {
-		bsReload();
+gulp.task('watch', () => {
+	gulp.watch('./htdocs/js/*.js', ['babel'], () => {
+		browserSync.reload();
 	});
 });
+
+
+gulp.task('default', ['browser-sync', 'babel', 'watch']);
