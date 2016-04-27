@@ -59,7 +59,7 @@ window.onload = () => {
 		LifeP2.backgroundColor = '#27e4b2';
 
 
-		let Player = Class.create(Sprite, {
+		let Player02 = Class.create(Sprite, {
 			initialize: (x, y) => {
 				Sprite.call(this, player02_width, player02_height);
 				this.image = game.assets[player02_image];
@@ -76,6 +76,8 @@ window.onload = () => {
 			lifeGaugeGroup.addChild(LifeP2);
 
 			game.rootScene.addChild(lifeGaugeGroup);
+
+			let player02 = new Player02(screen_width / 2, screen_height / 2);
 		});
 	};
 	game.start();
