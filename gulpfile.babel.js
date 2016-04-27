@@ -3,14 +3,12 @@ import plumber from 'gulp-plumber';
 import browserSync from 'browser-sync';
 import babel from 'gulp-babel';
 
-const bsCreate = browserSync.create();
-
+const browserSyncCreate = browserSync.create();
+const reload = browserSyncCreate.reload;
 
 gulp.task('browser-sync', () => {
-	bsCreate.init(null, {
-		server: {
-			baseDir: 'htdocs/'
-		}
+	browserSyncCreate.init(null, {
+		proxy: ''
 	})
 });
 
@@ -29,9 +27,7 @@ gulp.task('babel', () => {
 
 
 gulp.task('watch', () => {
-	gulp.watch('./htdocs/js/*.js', ['babel'], () => {
-		browserSync.reload();
-	});
+	gulp.watch(['./htdocs/js/*.js'], ['babel'], reload);
 });
 
 
