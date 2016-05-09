@@ -61,6 +61,7 @@ window.onload = function () {
 				undefined.x = x;
 				undefined.y = y;
 				undefined.frame = 3;
+				undefined.on('enterframe', function () {});
 			}
 		});
 

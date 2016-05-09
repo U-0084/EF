@@ -66,6 +66,8 @@ window.onload = () => {
 				this.x = x;
 				this.y = y;
 				this.frame = 3;
+				this.on('enterframe', () => {
+				});
 			}
 		});
 
