@@ -46,14 +46,14 @@ window.onload = () => {
 
 		let LifeP1 = new Entity();
 		LifeP1.width = screen_width / 2 - 10;
-		LifeP1.height = 30;
+		LifeP1.height = 20;
 		LifeP1.x = 10;
 		LifeP1.y = 10;
 		LifeP1.backgroundColor = '#27e4b2';
 
 		let LifeP2 = new Entity();
 		LifeP2.width = -screen_width / 2 + 10;
-		LifeP2.height = 30;
+		LifeP2.height = 20;
 		LifeP2.x = screen_width - 10;
 		LifeP2.y = 10;
 		LifeP2.backgroundColor = '#27e4b2';
@@ -66,8 +66,6 @@ window.onload = () => {
 				this.x = x;
 				this.y = y;
 				this.frame = 3;
-				this.on('enterframe', () => {
-				});
 			}
 		});
 

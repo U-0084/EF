@@ -16,5 +16,10 @@
   },
   "devDependencies": {
     "ect": "^0.5.9"
+  },
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
   }
 }
