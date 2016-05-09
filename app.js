@@ -8,11 +8,18 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
+var ECT = require('ect');
+
 var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+app.engine('ect', ECT({
+  watch: true,
+  root: __dirname + '/views',
+  ext: '.ect'
+}).render);
+app.set('view engine', 'ect');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
