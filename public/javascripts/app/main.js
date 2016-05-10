@@ -29,14 +29,8 @@ window.onload = function () {
 		console.log(textStatus);
 	}
 
-	function battleScene() {
-		var scene = new Scene();
-		return scene;
-	}
-
 	var game = new Game(screen_width, screen_height);
 	game.preload(assets);
-	game.keybind(32, ' space');
 	game.fps = 30;
 	game.onload = function () {
 
@@ -56,23 +50,29 @@ window.onload = function () {
 
 		var Player02 = Class.create(Sprite, {
 			initialize: function initialize(x, y) {
-				Sprite.call(undefined, player02_width, player02_height);
-				undefined.image = game.assets[player02_image];
-				undefined.x = x;
-				undefined.y = y;
-				undefined.frame = 3;
+				Sprite.call(this, 160, 160);
+				this.image = game.assets[player02_image];
+				this.x = x;
+				this.y = y;
+				this.frame = 3;
+				this.on('enterframe', function () {});
 			}
 		});
+		var player02 = new Player02(screen_width / 1.5, 200);
+		game.rootScene.addChild(player02);
 
-		var battleScene = game.currentScene;
 		game.rootScene.on('enterframe', function (battleScene) {
-			var lifeGaugeGroup = new Group();
-			lifeGaugeGroup.addChild(LifeP1);
-			lifeGaugeGroup.addChild(LifeP2);
 
-			game.rootScene.addChild(lifeGaugeGroup);
+			function battleScene() {
+				var scene = new Scene();
+				var lifeGaugeGroup = new Group();
+				lifeGaugeGroup.addChild(LifeP1);
+				lifeGaugeGroup.addChild(LifeP2);
+				game.rootScene.addChild(lifeGaugeGroup);
+				return scene;
+			}
 
-			var player02 = new Player02(screen_width / 2, screen_height / 2);
+			battleScene();
 		});
 	};
 	game.start();

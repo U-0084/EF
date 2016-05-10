@@ -44,7 +44,7 @@ gulp.task('nodemon', cb => {
 });
 
 
-gulp.task('browser-sync', ['nodemon'], () => {
+gulp.task('browser-sync', ['nodemon', 'babel'], () => {
 	browserSyncCreate.init(null, {
 		proxy: {
 			target: 'http://localhost:3000',

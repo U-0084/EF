@@ -32,26 +32,20 @@ window.onload = () => {
 		console.log(textStatus);
 	}
 
-	function battleScene() {
-		let scene = new Scene();
-		return scene;
-	}
-
 
 	let game = new Game(screen_width, screen_height);
 	game.preload(assets);
-	game.keybind(32, ' space');
 	game.fps = 30;
 	game.onload = () => {
 
-		let LifeP1 = new Entity();
+		const LifeP1 = new Entity();
 		LifeP1.width = screen_width / 2 - 10;
 		LifeP1.height = 20;
 		LifeP1.x = 10;
 		LifeP1.y = 10;
 		LifeP1.backgroundColor = '#27e4b2';
 
-		let LifeP2 = new Entity();
+		const LifeP2 = new Entity();
 		LifeP2.width = -screen_width / 2 + 10;
 		LifeP2.height = 20;
 		LifeP2.x = screen_width - 10;
@@ -59,25 +53,35 @@ window.onload = () => {
 		LifeP2.backgroundColor = '#27e4b2';
 
 
-		let Player02 = Class.create(Sprite, {
-			initialize: (x, y) => {
-				Sprite.call(this, player02_width, player02_height);
+		const Player02 = Class.create(Sprite, {
+			initialize: function(x, y) {
+				Sprite.call(this, 160, 160);
 				this.image = game.assets[player02_image];
 				this.x = x;
 				this.y = y;
 				this.frame = 3;
+				this.on('enterframe', function() {
+				});
 			}
 		});
+		const player02 = new Player02(screen_width / 1.5, 200);
+		game.rootScene.addChild(player02);
 
-		let battleScene = game.currentScene;
+
 		game.rootScene.on('enterframe', (battleScene) => {
-			let lifeGaugeGroup = new Group();
-			lifeGaugeGroup.addChild(LifeP1);
-			lifeGaugeGroup.addChild(LifeP2);
 
-			game.rootScene.addChild(lifeGaugeGroup);
 
-			let player02 = new Player02(screen_width / 2, screen_height / 2);
+			function battleScene() {
+				let scene = new Scene();
+				let lifeGaugeGroup = new Group();
+				lifeGaugeGroup.addChild(LifeP1);
+				lifeGaugeGroup.addChild(LifeP2);
+				game.rootScene.addChild(lifeGaugeGroup);
+				return scene;
+			}
+
+
+			battleScene();
 		});
 	};
 	game.start();
