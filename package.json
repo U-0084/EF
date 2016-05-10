@@ -15,7 +15,8 @@
     "serve-favicon": "~2.3.0"
   },
   "devDependencies": {
-    "ect": "^0.5.9"
+    "ect": "^0.5.9",
+    "express": "^4.13.4"
   },
   "babel": {
     "presets": [

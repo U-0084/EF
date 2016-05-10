@@ -1,16 +1,18 @@
 enchant();
 
 
-const screen_width = 960;
-const screen_height = 450;
+const screen_width = 640;
+const screen_height = 290;
 
 const player02_width = 80;
 const player02_height = 80;
 
 const player02_image = '../images/bigmonster2.gif';
+const bg_battle_image01 = '../images/bg_battle01.jpg';
 
 const assets = [
-	player02_image
+	player02_image,
+	bg_battle_image01
 ];
 
 
@@ -61,22 +63,76 @@ window.onload = () => {
 				this.y = y;
 				this.frame = 3;
 				this.on('enterframe', function() {
+					let input = game.input;
+					const player_speed = 15;
+					let [vx, vy] = [0, 0];
+					this.frame = this.direction * 3 + this.walk;
+					if (gamepad) {
+						if (gamepad.axes[0] < -0.5) {
+							this.x -= player_speed;
+							this.frame = this.age % 3 + 9;
+						}
+						if (gamepad.axes[0] > 0.5) {
+							this.x += player_speed;
+							this.frame = this.age % 3 + 18;
+						}
+						if (gamepad.axes[1] < -0.5) {
+							this.y -= player_speed;
+							this.frame = this.age % 3 + 27;
+						}
+						if (gamepad.axes[1] > 0.5) {
+							this.y += player_speed;
+							this.frame = this.age % 3;
+						}
+					}
+					if (input.left) {
+						this.x -= player_speed;
+						this.frame = this.age% 3 + 9;
+					}
+					if (input.right) {
+						this.x += player_speed;
+						this.frame = this.age % 3 + 18;
+					}
+					if (input.up) {
+						this.y -= player_speed;
+						this.frame = this.age % 3 + 27;
+					}
+					if (input.down) {
+						this.y += player_speed;
+						this.frame = this.age % 3;
+					}
+					// 斜めの移動補正
+					if (vx !== 0 && vy !== 0) {
+						var length = Math.sqrt(vx*vx + vy*vy);
+						vx /= length;
+						vy /= length;
+						vx *= player_speed;
+						vy *= player_speed;
+					}
 				});
 			}
-		});
-		const player02 = new Player02(screen_width / 1.5, 200);
-		game.rootScene.addChild(player02);
-
+		})
 
 		game.rootScene.on('enterframe', (battleScene) => {
 
 
 			function battleScene() {
 				let scene = new Scene();
+				let bg = new Sprite(screen_width, screen_height);
+				bg.image = game.assets[bg_battle_image01];
+				bg.x = 0;
+				bg.y = 0;
+				game.rootScene.addChild(bg);
+
+
 				let lifeGaugeGroup = new Group();
 				lifeGaugeGroup.addChild(LifeP1);
 				lifeGaugeGroup.addChild(LifeP2);
 				game.rootScene.addChild(lifeGaugeGroup);
+
+				const player02 = new Player02(screen_width / 1.5, 130);
+				game.rootScene.addChild(player02);
+
 				return scene;
 			}
 
