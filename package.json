@@ -21,5 +21,17 @@
     "presets": [
       "es2015"
     ]
-  }
+  },
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/U-0084/enginner_fighter.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/U-0084/enginner_fighter/issues"
+  },
+  "homepage": "https://github.com/U-0084/enginner_fighter#readme",
+  "description": ""
 }

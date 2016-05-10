@@ -1,4 +1,5 @@
 import gulp from 'gulp';
+import fs from 'fs';
 import plumber from 'gulp-plumber';
 import browserSync from 'browser-sync';
 import babel from 'gulp-babel';
@@ -17,7 +18,7 @@ gulp.task('babel', () => {
 		.pipe(babel({
 			presets: ['es2015']
 		}))
-		.pipe(gulp.dest('./app/js'));
+		.pipe(gulp.dest('./public/javascripts/app'));
 });
 
 
