@@ -61,12 +61,11 @@ window.onload = () => {
 				this.image = game.assets[player02_image];
 				this.x = x;
 				this.y = y;
-				this.frame = 3;
+				this.frame = 2;
 				this.on('enterframe', function() {
-					let input = game.input;
+					const input = game.input;
 					const player_speed = 15;
 					let [vx, vy] = [0, 0];
-					this.frame = this.direction * 3 + this.walk;
 					if (gamepad) {
 						if (gamepad.axes[0] < -0.5) {
 							this.x -= player_speed;
@@ -87,11 +86,11 @@ window.onload = () => {
 					}
 					if (input.left) {
 						this.x -= player_speed;
-						this.frame = this.age% 3 + 9;
+						this.frame = this.age % 2 + 3;
 					}
 					if (input.right) {
 						this.x += player_speed;
-						this.frame = this.age % 3 + 18;
+						this.frame = this.age % 2 + 18;
 					}
 					if (input.up) {
 						this.y -= player_speed;
@@ -115,17 +114,22 @@ window.onload = () => {
 
 		game.rootScene.on('enterframe', (battleScene) => {
 
+			function topScene() {
+				const scene = new Scene();
+				const bg = new Sprite(screen_width, screen_height);
+			}
+
 
 			function battleScene() {
-				let scene = new Scene();
-				let bg = new Sprite(screen_width, screen_height);
+				const scene = new Scene();
+				const bg = new Sprite(screen_width, screen_height);
 				bg.image = game.assets[bg_battle_image01];
 				bg.x = 0;
 				bg.y = 0;
 				game.rootScene.addChild(bg);
 
 
-				let lifeGaugeGroup = new Group();
+				const lifeGaugeGroup = new Group();
 				lifeGaugeGroup.addChild(LifeP1);
 				lifeGaugeGroup.addChild(LifeP2);
 				game.rootScene.addChild(lifeGaugeGroup);
@@ -136,8 +140,9 @@ window.onload = () => {
 				return scene;
 			}
 
-
-			battleScene();
+			if (game.input.up) {
+				battleScene();
+			}
 		});
 	};
 	game.start();

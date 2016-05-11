@@ -55,14 +55,13 @@ window.onload = function () {
 				this.image = game.assets[player02_image];
 				this.x = x;
 				this.y = y;
-				this.frame = 3;
+				this.frame = 2;
 				this.on('enterframe', function () {
 					var input = game.input;
 					var player_speed = 15;
 					var vx = 0;
 					var vy = 0;
 
-					this.frame = this.direction * 3 + this.walk;
 					if (gamepad) {
 						if (gamepad.axes[0] < -0.5) {
 							this.x -= player_speed;
@@ -83,11 +82,11 @@ window.onload = function () {
 					}
 					if (input.left) {
 						this.x -= player_speed;
-						this.frame = this.age % 3 + 9;
+						this.frame = this.age % 2 + 3;
 					}
 					if (input.right) {
 						this.x += player_speed;
-						this.frame = this.age % 3 + 18;
+						this.frame = this.age % 2 + 18;
 					}
 					if (input.up) {
 						this.y -= player_speed;
@@ -111,6 +110,11 @@ window.onload = function () {
 
 		game.rootScene.on('enterframe', function (battleScene) {
 
+			function topScene() {
+				var scene = new Scene();
+				var bg = new Sprite(screen_width, screen_height);
+			}
+
 			function battleScene() {
 				var scene = new Scene();
 				var bg = new Sprite(screen_width, screen_height);
@@ -130,7 +134,9 @@ window.onload = function () {
 				return scene;
 			}
 
-			battleScene();
+			if (game.input.up) {
+				battleScene();
+			}
 		});
 	};
 	game.start();
