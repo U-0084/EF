@@ -9,9 +9,19 @@
   <link rel='stylesheet' href='/stylesheets/style.css' />
 </head>
 <body>
+<button>Request!!</button>
 <script src="/javascripts/lib/enchant.js"></script>
 <script src="/javascripts/lib/avatar.enchant.js"></script>
 <script src="/javascripts/lib/ui.enchant.js"></script>
 <script src="/javascripts/app/main.js"></script>
+<script>
+  var socket = io.connect();
+  $('button').on('click', function() {
+    socket.emit('request');
+  });
+  socket.on('response', function() {
+    alert('Get Response!!');
+  });
+</script>
 </body>
 </html>

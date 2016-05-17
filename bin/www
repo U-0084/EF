@@ -7,6 +7,15 @@
 var app = require('../app');
 var debug = require('debug')('enginner_fighter:server');
 var http = require('http');
+server.on('listening', onListening);
+var socketIO = require('socket.io');
+var io = socketIO.listen(server);
+
+io.on('connection', function(socket) {
+  socket.on('request', function() {
+    socket.broadcast.emit('response');
+  });
+});
 
 /**
  * Get port from environment and store in Express.

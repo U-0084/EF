@@ -16,7 +16,8 @@
   },
   "devDependencies": {
     "ect": "^0.5.9",
-    "express": "^4.13.4"
+    "express": "^4.13.4",
+    "gulp-sass": "^2.3.1"
   },
   "babel": {
     "presets": [

@@ -105,9 +105,21 @@ window.onload = function () {
 					preInput = input.up;
 
 					var left = 0;
-					var right = 0;
-					var top = screen_width - _this.width;
+					var top = 0;
+					var right = screen_width - _this.width;
 					var bottom = screen_height - _this.height;
+
+
+					if (_this.x < left) {
+						_this.x = left;
+					} else if (_this.x > right) {
+						_this.x = right;
+					}
+					if (_this.y < top) {
+						_this.y = top;
+					} else if (_this.y > bottom) {
+						_this.y = bottom;
+					}
 				});
 			}
 		});

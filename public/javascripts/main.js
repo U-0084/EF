@@ -106,8 +106,19 @@ window.onload = () => {
 					ground = tempy;
 					preInput = input.up;
 
-					let [left, right] = [0, 0];
-					let [top, bottom] = [screen_width - this.width, screen_height - this.height];
+					let [left, top] = [0, 0];
+					let [right, bottom] = [screen_width - this.width, screen_height - this.height];
+
+					if (this.x < left) {
+						this.x = left;
+					} else if (this.x > right) {
+						this.x = right;
+					}
+					if (this.y < top) {
+						this.y = top;
+					} else if (this.y > bottom) {
+						this.y = bottom;
+					}
 				});
 			}
 		});
