@@ -7,9 +7,9 @@ const screen_height = 290;
 const player02_width = 80;
 const player02_height = 80;
 
-const player01_image = '../images/player01.gif'
-const player02_image = '../images/player02.gif';
-const bg_battle_image01 = '../images/bg_battle01.jpg';
+const player01_image = 'http://localhost:3000/images/player01.gif';
+const player02_image = 'http://localhost:3000/images/player02.gif';
+const bg_battle_image01 = 'http://localhost:3000/images/bg_battle01.jpg';
 
 const assets = [
 	player01_image,
@@ -39,7 +39,7 @@ window.onload = () => {
 
 	const game = new Game(screen_width, screen_height);
 	game.preload(assets);
-	game.fps = 20;
+	game.fps = 30;
 	game.keybind(32, 'space');
 	game.onload = () => {
 
@@ -63,19 +63,25 @@ window.onload = () => {
 
 		const Player01 = Class.create(Sprite, {
 			initialize: function(x, y) {
+				let ground = 220;
+				let preInput = false;
+				let jump = false;
+
 				Sprite.call(this, 64, 64);
 				this.image = game.assets[player01_image];
-				let p01_image = this.image;
 				this.scaleX = -1;
 				this.x = x;
 				this.y = y;
 				this.frame = 0;
 				this.on('enterframe', () => {
-					this.frame = this.direction * 3 + this.walk;
+					let tempy = this.y;
+					let gravity = 1.0;
+
+					this.frame = 0;
 					this.scaleX = -1;
-					if (input.up) {
-						// gravity = -10.0;
-						// jump = true;
+					if(input.up && !preInput && !jump) {
+					  gravity = -12.0;
+					  jump = true;
 					}
 					if (input.right) {
 						this.x += player_speed;
@@ -90,11 +96,32 @@ window.onload = () => {
 						this.frame = this.age % 2 + 2;
 					}
 
+					this.y += (this.y - ground) + gravity;
+
+					if (this.y > 220) {
+						this.y = 220;
+						jump = false;
+					}
+
+					ground = tempy;
+					preInput = input.up;
+
 					let [left, right] = [0, 0];
 					let [top, bottom] = [screen_width - this.width, screen_height - this.height];
 				});
 			}
 		});
+
+		class Player03 {
+			constructor(x, y) {
+				this.x = x;
+				this.y = y;
+				this.width = 254;
+				this.height = 254;
+				this.image = game.assets[player01_image];
+				this.frame = 0;
+			}
+		}
 
 		const Player02 = Class.create(Sprite, {
 			initialize: function(x, y) {
@@ -107,10 +134,10 @@ window.onload = () => {
 				this.frame = 0;
 				this.on('enterframe', () => {
 					this.frame = this.direction * 3 + this.walk;
-					if (input.up) {
-						// gravity = -10.0;
-						// jump = true;
-					}
+					// if (input.up) {
+					// 	gravity = -10.0;
+					// 	jump = true;
+					// }
 					// if (input.right) {
 					// 	this.x += player_speed;
 					// 	this.frame = this.age % 2 + 2;
@@ -129,12 +156,6 @@ window.onload = () => {
 				});
 			}
 		});
-
-			// let gravity = 1.0;
-			// let jump = false;
-			// let preY = 220;
-			// let preInput = false;
-			// let tempty = player01.y;
 
 			// player01.action = 'stop';
 			// if (input.up) {
@@ -178,12 +199,11 @@ window.onload = () => {
 			const player02 = new Player02(screen_width / 1.5, 220);
 			root.addChild(player02);
 
+			const player03 = new Player03(screen_width / 2, 100);
+			console.log(player03);
 			if (player01.x > player02.x) {
 				player01.scaleX = 1;
 			}
-
-			var hoge = new Avatar('1:5:0:2064:21580:2214');
-			console.log(hoge);
 
 			return scene;
 		}

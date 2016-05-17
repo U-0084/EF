@@ -1,5 +1,7 @@
 'use strict';
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 enchant();
 
 var screen_width = 640;
@@ -8,9 +10,9 @@ var screen_height = 290;
 var player02_width = 80;
 var player02_height = 80;
 
-var player01_image = '../images/player01.gif';
-var player02_image = '../images/player02.gif';
-var bg_battle_image01 = '../images/bg_battle01.jpg';
+var player01_image = 'http://localhost:3000/images/player01.gif';
+var player02_image = 'http://localhost:3000/images/player02.gif';
+var bg_battle_image01 = 'http://localhost:3000/images/bg_battle01.jpg';
 
 var assets = [player01_image, player02_image, bg_battle_image01];
 
@@ -33,7 +35,7 @@ window.onload = function () {
 
 	var game = new Game(screen_width, screen_height);
 	game.preload(assets);
-	game.fps = 20;
+	game.fps = 30;
 	game.keybind(32, 'space');
 	game.onload = function () {
 
@@ -59,19 +61,25 @@ window.onload = function () {
 			initialize: function initialize(x, y) {
 				var _this = this;
 
+				var ground = 220;
+				var preInput = false;
+				var jump = false;
+
 				Sprite.call(this, 64, 64);
 				this.image = game.assets[player01_image];
-				var p01_image = this.image;
 				this.scaleX = -1;
 				this.x = x;
 				this.y = y;
 				this.frame = 0;
 				this.on('enterframe', function () {
-					_this.frame = _this.direction * 3 + _this.walk;
+					var tempy = _this.y;
+					var gravity = 1.0;
+
+					_this.frame = 0;
 					_this.scaleX = -1;
-					if (input.up) {
-						// gravity = -10.0;
-						// jump = true;
+					if (input.up && !preInput && !jump) {
+						gravity = -12.0;
+						jump = true;
 					}
 					if (input.right) {
 						_this.x += player_speed;
@@ -86,6 +94,16 @@ window.onload = function () {
 						_this.frame = _this.age % 2 + 2;
 					}
 
+					_this.y += _this.y - ground + gravity;
+
+					if (_this.y > 220) {
+						_this.y = 220;
+						jump = false;
+					}
+
+					ground = tempy;
+					preInput = input.up;
+
 					var left = 0;
 					var right = 0;
 					var top = screen_width - _this.width;
@@ -93,6 +111,17 @@ window.onload = function () {
 				});
 			}
 		});
+
+		var Player03 = function Player03(x, y) {
+			_classCallCheck(this, Player03);
+
+			this.x = x;
+			this.y = y;
+			this.width = 254;
+			this.height = 254;
+			this.image = game.assets[player01_image];
+			this.frame = 0;
+		};
 
 		var Player02 = Class.create(Sprite, {
 			initialize: function initialize(x, y) {
@@ -107,10 +136,10 @@ window.onload = function () {
 				this.frame = 0;
 				this.on('enterframe', function () {
 					_this2.frame = _this2.direction * 3 + _this2.walk;
-					if (input.up) {}
-					// gravity = -10.0;
-					// jump = true;
-
+					// if (input.up) {
+					// 	gravity = -10.0;
+					// 	jump = true;
+					// }
 					// if (input.right) {
 					// 	this.x += player_speed;
 					// 	this.frame = this.age % 2 + 2;
@@ -131,12 +160,6 @@ window.onload = function () {
 				});
 			}
 		});
-
-		// let gravity = 1.0;
-		// let jump = false;
-		// let preY = 220;
-		// let preInput = false;
-		// let tempty = player01.y;
 
 		// player01.action = 'stop';
 		// if (input.up) {
@@ -180,12 +203,11 @@ window.onload = function () {
 			var player02 = new Player02(screen_width / 1.5, 220);
 			root.addChild(player02);
 
+			var player03 = new Player03(screen_width / 2, 100);
+			console.log(player03);
 			if (player01.x > player02.x) {
 				player01.scaleX = 1;
 			}
-
-			var hoge = new Avatar('1:5:0:2064:21580:2214');
-			console.log(hoge);
 
 			return scene;
 		}
