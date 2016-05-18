@@ -2,6 +2,28 @@
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var socket = io.connect('http://localhost:3000');
+name = window.prompt('ユーザー名を入力してください');
+
+var playerInfo = {
+	id: '',
+	login_name: name
+};
+console.log(playerInfo);
+
+var player = null;
+var otherPlayer = {};
+
+socket.on('connect', function () {
+	playerInfo.id = socket.id;
+	console.log(socket.id);
+	if (player) {
+		player.id = playerInfo.id;
+		console.log(playerInfo.id);
+	}
+	socket.emit('name', playerInfo);
+});
+
 enchant();
 
 var screen_width = 640;
@@ -35,7 +57,7 @@ window.onload = function () {
 
 	var game = new Game(screen_width, screen_height);
 	game.preload(assets);
-	game.fps = 20;
+	game.fps = 30;
 	game.keybind(32, 'space');
 	game.keybind(65, 'a');
 	game.onload = function () {
@@ -194,23 +216,25 @@ window.onload = function () {
 		}
 
 		function battleScene() {
-			root.addChild(bg);
-			root.addChild(LifeP1);
-			root.addChild(LifeP2);
+			socket.emit('request', function () {
+				root.addChild(bg);
+				root.addChild(LifeP1);
+				root.addChild(LifeP2);
 
-			var player01 = new Player01(screen_width / 5, 220);
-			root.addChild(player01);
+				var player01 = new Player01(screen_width / 5, 220);
+				root.addChild(player01);
 
-			var player02 = new Player02(screen_width / 1.5, 220);
-			root.addChild(player02);
+				var player02 = new Player02(screen_width / 1.5, 220);
+				root.addChild(player02);
 
-			var player03 = new Player03(screen_width / 2, 100);
-			console.log(player03);
+				var player03 = new Player03(screen_width / 2, 100);
+				console.log(player03);
 
-			if (player01.x > player02.x) {
-				player01.scaleX = 1;
-				console.log(player01);
-			}
+				if (player01.x > player02.x) {
+					player01.scaleX = 1;
+					console.log(player01);
+				}
+			});
 
 			return scene;
 		}

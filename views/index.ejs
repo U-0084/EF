@@ -17,13 +17,6 @@
 <script src="/javascripts/lib/ui.enchant.js"></script>
 <script src="/javascripts/app/main.js"></script>
 <script>
-
-  var socket = io.connect();
-  socket.emit('request');
-  socket.on('response', function() {
-    console.log(socket);
-  });
-
   Push.create('FINISH!', {
     body: 'あなたの勝ちです！',
     icon: {

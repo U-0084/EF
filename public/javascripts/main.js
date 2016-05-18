@@ -1,3 +1,25 @@
+const socket = io.connect('http://localhost:3000');
+name = window.prompt('ユーザー名を入力してください');
+
+const playerInfo = {
+	id: '',
+	login_name: name
+};
+console.log(playerInfo);
+
+const player = null;
+const otherPlayer =  {};
+
+socket.on('connect', () => {
+	playerInfo.id = socket.id;
+	console.log(socket.id);
+	if (player) {
+		player.id = playerInfo.id;
+		console.log(playerInfo.id);
+	}
+	socket.emit('name', playerInfo);
+});
+
 enchant();
 
 const screen_width = 640;
@@ -38,7 +60,7 @@ window.onload = () => {
 
 	const game = new Game(screen_width, screen_height);
 	game.preload(assets);
-	game.fps = 20;
+	game.fps = 30;
 	game.keybind(32, 'space');
 	game.keybind(65, 'a');
 	game.onload = () => {
@@ -192,23 +214,25 @@ window.onload = () => {
 
 
 		function battleScene() {
-			root.addChild(bg);
-			root.addChild(LifeP1);
-			root.addChild(LifeP2);
+			socket.emit('request', () => {
+				root.addChild(bg);
+				root.addChild(LifeP1);
+				root.addChild(LifeP2);
 
-			const player01 = new Player01(screen_width / 5, 220);
-			root.addChild(player01);
+				const player01 = new Player01(screen_width / 5, 220);
+				root.addChild(player01);
 
-			const player02 = new Player02(screen_width / 1.5, 220);
-			root.addChild(player02);
+				const player02 = new Player02(screen_width / 1.5, 220);
+				root.addChild(player02);
 
-			const player03 = new Player03(screen_width / 2, 100);
-			console.log(player03);
+				const player03 = new Player03(screen_width / 2, 100);
+				console.log(player03);
 
-			if (player01.x > player02.x) {
-				player01.scaleX = 1;
-				console.log(player01);
-			}
+				if (player01.x > player02.x) {
+					player01.scaleX = 1;
+					console.log(player01);
+				}
+			});
 
 			return scene;
 		}
