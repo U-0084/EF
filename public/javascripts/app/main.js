@@ -35,8 +35,9 @@ window.onload = function () {
 
 	var game = new Game(screen_width, screen_height);
 	game.preload(assets);
-	game.fps = 30;
+	game.fps = 20;
 	game.keybind(32, 'space');
+	game.keybind(65, 'a');
 	game.onload = function () {
 
 		var root = game.rootScene;
@@ -56,6 +57,12 @@ window.onload = function () {
 		LifeP2.x = screen_width - 10;
 		LifeP2.y = 10;
 		LifeP2.backgroundColor = '#27e4b2';
+
+		var scene = new Scene();
+		var bg = new Sprite(screen_width, screen_height);
+		bg.image = game.assets[bg_battle_image01];
+		bg.x = 0;
+		bg.y = 0;
 
 		var Player01 = Class.create(Sprite, {
 			initialize: function initialize(x, y) {
@@ -107,7 +114,7 @@ window.onload = function () {
 					var left = 0;
 					var top = 0;
 					var right = screen_width - _this.width;
-					var bottom = screen_height - _this.height;
+					var bottom = screen_height - _this.heigh;
 
 
 					if (_this.x < left) {
@@ -121,12 +128,33 @@ window.onload = function () {
 						_this.y = bottom;
 					}
 				});
+			},
+			attack: function attack() {
+				this.frame = this.age % 3 + 4;
+				console.log(player01);
+			}
+		});
+
+		var Attack01 = Class.create(Sprite, {
+			initialize: function initialize(x, y) {
+				sprite.call(this, 64, 64);
+				this.destroy = false;
+				this.x = x;
+				this.y = y;
+				this.on('enterframe', function () {
+					if (game.input.a) {
+						Attack01Fuc();
+					}
+					console.log(Attack01);
+				});
 			}
 		});
 
 		var Player03 = function Player03(x, y) {
 			_classCallCheck(this, Player03);
 
+			var player03_img = new Image();
+			player03_img.src = 'http://localhost:3000/images/bigmonster2.gif';
 			this.x = x;
 			this.y = y;
 			this.width = 254;
@@ -148,64 +176,25 @@ window.onload = function () {
 				this.frame = 0;
 				this.on('enterframe', function () {
 					_this2.frame = _this2.direction * 3 + _this2.walk;
-					// if (input.up) {
-					// 	gravity = -10.0;
-					// 	jump = true;
-					// }
-					// if (input.right) {
-					// 	this.x += player_speed;
-					// 	this.frame = this.age % 2 + 2;
-					// }
-					// if (input.down) {
-					// 	this.frame = 8;
-					// }
-					// if (input.left) {
-					// 	this.scaleX = 1;
-					// 	this.x -= player_speed;
-					// 	this.frame = this.age % 2 + 2;
-					// }
-
-					var left = 0;
-					var right = 0;
-					var top = screen_width - _this2.width;
-					var bottom = screen_height - _this2.height;
 				});
 			}
 		});
 
-		// player01.action = 'stop';
-		// if (input.up) {
-		// 	gravity = -10.0;
-		// 	jump = true;
-		// }
-		// if (input.right) {
-		// 	player01.x += player_speed;
-		// 	player01.action = 'run';
-		// }
-		// if (input.down) {
-		// 	player01.action = 'dead';
-		// }
-		// if (input.left) {
-		// 	player01.x -= player_speed;
-		// 	player01.action = 'run';
-		// }
+		function Attack01Fuc() {
+			var attack01 = new Attack01();
+			root.addChild(attack01);
+			console.log(attack01);
+		}
 
-		// player01.y += (player01.y - preY) + gravity;
-		// if (player01.y > 220) {
-		// 	player01.y = 220;
-		// 	jump = false;
-		// }
-
-		// preY = tempty;
-		// preInput = input.up;
-		function battleScene() {
+		function topScene() {
 			var scene = new Scene();
 			var bg = new Sprite(screen_width, screen_height);
-			bg.image = game.assets[bg_battle_image01];
-			bg.x = 0;
-			bg.y = 0;
-			root.addChild(bg);
 
+			return scene;
+		}
+
+		function battleScene() {
+			root.addChild(bg);
 			root.addChild(LifeP1);
 			root.addChild(LifeP2);
 
@@ -217,20 +206,16 @@ window.onload = function () {
 
 			var player03 = new Player03(screen_width / 2, 100);
 			console.log(player03);
+
 			if (player01.x > player02.x) {
 				player01.scaleX = 1;
+				console.log(player01);
 			}
 
 			return scene;
 		}
-		game.rootScene.on('enterframe', function (topScene) {
 
-			function topScene() {
-				var scene = new Scene();
-				var bg = new Sprite(screen_width, screen_height);
-
-				return scene;
-			}
+		game.rootScene.on('enterframe', function () {
 
 			topScene();
 

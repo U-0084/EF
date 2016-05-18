@@ -1,6 +1,5 @@
 enchant();
 
-
 const screen_width = 640;
 const screen_height = 290;
 
@@ -39,8 +38,9 @@ window.onload = () => {
 
 	const game = new Game(screen_width, screen_height);
 	game.preload(assets);
-	game.fps = 30;
+	game.fps = 20;
 	game.keybind(32, 'space');
+	game.keybind(65, 'a');
 	game.onload = () => {
 
 		const root = game.rootScene;
@@ -60,6 +60,12 @@ window.onload = () => {
 		LifeP2.x = screen_width - 10;
 		LifeP2.y = 10;
 		LifeP2.backgroundColor = '#27e4b2';
+
+		let scene = new Scene();
+		let bg = new Sprite(screen_width, screen_height);
+		bg.image = game.assets[bg_battle_image01];
+		bg.x = 0;
+		bg.y = 0;
 
 		const Player01 = Class.create(Sprite, {
 			initialize: function(x, y) {
@@ -106,8 +112,9 @@ window.onload = () => {
 					ground = tempy;
 					preInput = input.up;
 
+
 					let [left, top] = [0, 0];
-					let [right, bottom] = [screen_width - this.width, screen_height - this.height];
+					let [right, bottom] = [screen_width - this.width, screen_height - this.heigh];
 
 					if (this.x < left) {
 						this.x = left;
@@ -120,11 +127,32 @@ window.onload = () => {
 						this.y = bottom;
 					}
 				});
+			},
+			attack: function() {
+				this.frame = this.age % 3 + 4;
+				console.log(player01);
+			}
+		});
+
+		const Attack01 = Class.create(Sprite, {
+			initialize: function(x, y) {
+				sprite.call(this, 64, 64);
+				this.destroy = false;
+				this.x = x;
+				this.y = y;
+				this.on('enterframe', () => {
+					if (game.input.a) {
+						Attack01Fuc();
+					}
+					console.log(Attack01);
+				});
 			}
 		});
 
 		class Player03 {
 			constructor(x, y) {
+				const player03_img = new Image();
+				player03_img.src = 'http://localhost:3000/images/bigmonster2.gif';
 				this.x = x;
 				this.y = y;
 				this.width = 254;
@@ -145,62 +173,26 @@ window.onload = () => {
 				this.frame = 0;
 				this.on('enterframe', () => {
 					this.frame = this.direction * 3 + this.walk;
-					// if (input.up) {
-					// 	gravity = -10.0;
-					// 	jump = true;
-					// }
-					// if (input.right) {
-					// 	this.x += player_speed;
-					// 	this.frame = this.age % 2 + 2;
-					// }
-					// if (input.down) {
-					// 	this.frame = 8;
-					// }
-					// if (input.left) {
-					// 	this.scaleX = 1;
-					// 	this.x -= player_speed;
-					// 	this.frame = this.age % 2 + 2;
-					// }
-
-					let [left, right] = [0, 0];
-					let [top, bottom] = [screen_width - this.width, screen_height - this.height];
 				});
 			}
 		});
 
-			// player01.action = 'stop';
-			// if (input.up) {
-			// 	gravity = -10.0;
-			// 	jump = true;
-			// }
-			// if (input.right) {
-			// 	player01.x += player_speed;
-			// 	player01.action = 'run';
-			// }
-			// if (input.down) {
-			// 	player01.action = 'dead';
-			// }
-			// if (input.left) {
-			// 	player01.x -= player_speed;
-			// 	player01.action = 'run';
-			// }
+		function Attack01Fuc() {
+			const attack01 = new Attack01();
+			root.addChild(attack01);
+			console.log(attack01);
+		}
 
-			// player01.y += (player01.y - preY) + gravity;
-			// if (player01.y > 220) {
-			// 	player01.y = 220;
-			// 	jump = false;
-			// }
-
-			// preY = tempty;
-			// preInput = input.up;
-		function battleScene() {
+		function topScene() {
 			let scene = new Scene();
 			let bg = new Sprite(screen_width, screen_height);
-			bg.image = game.assets[bg_battle_image01];
-			bg.x = 0;
-			bg.y = 0;
-			root.addChild(bg);
 
+			return scene;
+		}
+
+
+		function battleScene() {
+			root.addChild(bg);
 			root.addChild(LifeP1);
 			root.addChild(LifeP2);
 
@@ -212,20 +204,16 @@ window.onload = () => {
 
 			const player03 = new Player03(screen_width / 2, 100);
 			console.log(player03);
+
 			if (player01.x > player02.x) {
 				player01.scaleX = 1;
+				console.log(player01);
 			}
 
 			return scene;
 		}
-		game.rootScene.on('enterframe', (topScene) => {
 
-			function topScene() {
-				let scene = new Scene();
-				let bg = new Sprite(screen_width, screen_height);
-
-				return scene;
-			}
+		game.rootScene.on('enterframe', () => {
 
 			topScene();
 
