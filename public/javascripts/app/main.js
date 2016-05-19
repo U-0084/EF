@@ -2,41 +2,55 @@
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var socket = io.connect('http://localhost:3000');
-name = window.prompt('ユーザー名を入力してください');
-
-var playerInfo = {
-	id: '',
-	login_name: name
-};
-console.log(playerInfo);
-
-var player = null;
-var otherPlayer = {};
-
-socket.on('connect', function () {
-	playerInfo.id = socket.id;
-	console.log(socket.id);
-	if (player) {
-		player.id = playerInfo.id;
-		console.log(playerInfo.id);
-	}
-	socket.emit('name', playerInfo);
-});
-
-enchant();
+var serviceName = 'Enginner Fighter';
+var thisServer = 'http://localhost:3000/';
+var socket = io.connect(thisServer);
 
 var screen_width = 640;
 var screen_height = 290;
-
 var player02_width = 80;
 var player02_height = 80;
-
-var player01_image = 'http://localhost:3000/images/player01.gif';
-var player02_image = 'http://localhost:3000/images/player02.gif';
-var bg_battle_image01 = 'http://localhost:3000/images/bg_battle01.jpg';
+var player01_image = thisServer + 'images/player01.gif';
+var player02_image = thisServer + 'images/player02.gif';
+var bg_battle_image01 = thisServer + 'images/bg_battle01.jpg';
 
 var assets = [player01_image, player02_image, bg_battle_image01];
+
+var name = window.prompt('ユーザー名を入力してください');
+
+var player = null;
+
+var playerInfo = {
+	id: '',
+	loginName: name,
+	x: screen_width / 5,
+	y: 220,
+	settingFile: thisServer + 'data/player01.json'
+};
+
+// 繋がった時の処理
+socket.on('connect', function () {
+
+	playerInfo.id = socket.id;
+
+	Push.create('' + serviceName, {
+		body: name + 'さんがログインしました。',
+		icon: {
+			x32: '/images/player01.gif'
+		},
+		timeout: 5000
+	});
+
+	socket.emit('name', playerInfo);
+	console.log(socket);
+	console.log(playerInfo);
+});
+
+socket.on('longmessage', function (data) {
+	longpush(data);
+});
+
+enchant();
 
 window.onload = function () {
 
@@ -87,7 +101,7 @@ window.onload = function () {
 		bg.y = 0;
 
 		var Player01 = Class.create(Sprite, {
-			initialize: function initialize(x, y) {
+			initialize: function initialize(playerInfo) {
 				var _this = this;
 
 				var ground = 220;
@@ -95,10 +109,18 @@ window.onload = function () {
 				var jump = false;
 
 				Sprite.call(this, 64, 64);
+				this.playerInfo = playerInfo;
+				this.setSettingFile(playerInfo.settingFile);
 				this.image = game.assets[player01_image];
 				this.scaleX = -1;
-				this.x = x;
-				this.y = y;
+				this.x = this.playerInfo.x;
+				this.y = this.playerInfo.y;
+				// 名前
+				this.loginName = new Label(this.playerInfo.loginName);
+				this.loginName.width = 100;
+				this.loginName.color = 'black';
+				this.loginName.x = this.x + 10;
+				this.loginName.y = this.y - 15;
 				this.frame = 0;
 				this.on('enterframe', function () {
 					var tempy = _this.y;
@@ -109,9 +131,11 @@ window.onload = function () {
 					if (input.up && !preInput && !jump) {
 						gravity = -12.0;
 						jump = true;
+						_this.loginName.y = _this.y - 15;
 					}
 					if (input.right) {
 						_this.x += player_speed;
+						_this.loginName.x += player_speed;
 						_this.frame = _this.age % 2 + 2;
 					}
 					if (input.down) {
@@ -120,6 +144,7 @@ window.onload = function () {
 					if (input.left) {
 						_this.scaleX = 1;
 						_this.x -= player_speed;
+						_this.loginName.x -= player_speed;
 						_this.frame = _this.age % 2 + 2;
 					}
 
@@ -139,17 +164,38 @@ window.onload = function () {
 					var bottom = screen_height - _this.heigh;
 
 
-					if (_this.x < left) {
+					if (_this.x < left || _this.loginName.x < left) {
 						_this.x = left;
-					} else if (_this.x > right) {
+						_this.loginName.x = left;
+					} else if (_this.x > right || _this.loginName.x > right) {
 						_this.x = right;
+						_this.loginName.x = right;
 					}
-					if (_this.y < top) {
+					if (_this.y < top || _this.loginName.y < top) {
 						_this.y = top;
-					} else if (_this.y > bottom) {
+						_this.loginName.y = top;
+					} else if (_this.y > bottom || _this.loginName.y > bottom) {
 						_this.y = bottom;
+						_this.loginName.y = bottom;
 					}
 				});
+			},
+			setSettingFile: function setSettingFile(settingFile) {
+				this.settingFile = settingFile;
+				var core = enchant.Core.instance;
+				if (core.assets[this.settingFile]) {
+					this.setSetting(core.assets[this.settingFile]);
+				}
+			},
+			setSetting: function setSetting(setting) {
+				var info = JSON.parse(setting);
+
+				this.width = info.width;
+				this.height = info.height;
+				this.x = info.x;
+				this.y = info.y;
+				console.log(this.x);
+				this.setImage(info.image);
 			},
 			attack: function attack() {
 				this.frame = this.age % 3 + 4;
@@ -216,26 +262,23 @@ window.onload = function () {
 		}
 
 		function battleScene() {
-			socket.emit('request', function () {
-				root.addChild(bg);
-				root.addChild(LifeP1);
-				root.addChild(LifeP2);
+			root.addChild(bg);
+			root.addChild(LifeP1);
+			root.addChild(LifeP2);
 
-				var player01 = new Player01(screen_width / 5, 220);
-				root.addChild(player01);
+			var player01 = new Player01(playerInfo);
+			root.addChild(player01);
+			root.addChild(player01.loginName);
 
-				var player02 = new Player02(screen_width / 1.5, 220);
-				root.addChild(player02);
+			var player02 = new Player02(screen_width / 1.5, 220);
+			root.addChild(player02);
 
-				var player03 = new Player03(screen_width / 2, 100);
-				console.log(player03);
+			var player03 = new Player03(screen_width / 2, 100);
 
-				if (player01.x > player02.x) {
-					player01.scaleX = 1;
-					console.log(player01);
-				}
-			});
-
+			if (player01.x > player02.x) {
+				player01.scaleX = 1;
+				console.log(player01);
+			}
 			return scene;
 		}
 

@@ -1,0 +1,7 @@
+{
+	"image": "/images/player01.gif",
+	"width": 64,
+	"height": 64,
+	"x": "screen_width / 5",
+	"y": 220
+}

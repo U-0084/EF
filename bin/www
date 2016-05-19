@@ -7,6 +7,40 @@
 var app = require('../app');
 var debug = require('debug')('hoge:server');
 var http = require('http');
+var server = http.createServer(app);
+var socketIO = require('socket.io');
+var io = socketIO.listen(server);
+
+var chat = io.socket.on('connection', (socket) => {
+  socket.emit(connecter);
+  console.log(`${socket.id + connected.}`);
+
+  socket.on('init', (req) {
+    socket.Roominfoinfo = req.room;
+    socket.join(req.room);
+    
+  });
+});
+
+
+
+// socketIO.on('connection', function(socket) {
+//   socketIO.emit('sendMessageToClient', {
+//     value: '入室しました。'
+//   });
+
+//   socket.on('sendMessageToServer', function(data) {
+//     socketIO.emit('sendMessageToClient', {
+//       value: data.value
+//     });
+//   });
+
+//   socket.on('disconnect', function() {
+//     socketIO.emit('sendMessageToClient', {
+//       value: '退室しました。'
+//     });
+//   });
+// });
 
 /**
  * Get port from environment and store in Express.
@@ -19,23 +53,9 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
-
 /**
  * Listen on provided port, on all network interfaces.
  */
-
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
-var socketIO = require('socket.io');
-var io = socketIO.listen(server);
-
-io.on('connection', function(socket) {
-  socket.on('request', function() {
-    socket.broadcast.emit('response');
-  });
-});
 
 /**
  * Normalize a port into a number, string, or false.

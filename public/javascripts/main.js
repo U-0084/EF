@@ -1,36 +1,14 @@
-const socket = io.connect('http://localhost:3000');
-name = window.prompt('ユーザー名を入力してください');
-
-const playerInfo = {
-	id: '',
-	login_name: name
-};
-console.log(playerInfo);
-
-const player = null;
-const otherPlayer =  {};
-
-socket.on('connect', () => {
-	playerInfo.id = socket.id;
-	console.log(socket.id);
-	if (player) {
-		player.id = playerInfo.id;
-		console.log(playerInfo.id);
-	}
-	socket.emit('name', playerInfo);
-});
-
-enchant();
+const serviceName = 'Enginner Fighter';
+const thisServer = 'http://localhost:3000/';
+const socket = io.connect(thisServer);
 
 const screen_width = 640;
 const screen_height = 290;
-
 const player02_width = 80;
 const player02_height = 80;
-
-const player01_image = 'http://localhost:3000/images/player01.gif';
-const player02_image = 'http://localhost:3000/images/player02.gif';
-const bg_battle_image01 = 'http://localhost:3000/images/bg_battle01.jpg';
+const player01_image = thisServer + 'images/player01.gif';
+const player02_image = thisServer + 'images/player02.gif';
+const bg_battle_image01 = thisServer + 'images/bg_battle01.jpg';
 
 const assets = [
 	player01_image,
@@ -38,6 +16,41 @@ const assets = [
 	bg_battle_image01
 ];
 
+const name = window.prompt('ユーザー名を入力してください');
+
+const player = null;
+
+const playerInfo = {
+	id: '',
+	loginName: name,
+	x: screen_width / 5,
+	y: 220,
+	settingFile: `${thisServer}data/player01.json`
+};
+
+// 繋がった時の処理
+socket.on('connect', () => {
+
+	playerInfo.id = socket.id;
+
+	Push.create(`${serviceName}`, {
+    body: `${name}さんがログインしました。`,
+    icon: {
+      x32: '/images/player01.gif'
+    },
+    timeout: 5000
+  });
+
+	socket.emit('name', playerInfo);
+	console.log(socket);
+	console.log(playerInfo);
+});
+
+socket.on('longmessage', (data) => {
+	longpush(data);
+});
+
+enchant();
 
 window.onload = () => {
 
@@ -90,16 +103,24 @@ window.onload = () => {
 		bg.y = 0;
 
 		const Player01 = Class.create(Sprite, {
-			initialize: function(x, y) {
+			initialize: function(playerInfo) {
 				let ground = 220;
 				let preInput = false;
 				let jump = false;
 
 				Sprite.call(this, 64, 64);
+				this.playerInfo = playerInfo;
+				this.setSettingFile(playerInfo.settingFile);
 				this.image = game.assets[player01_image];
 				this.scaleX = -1;
-				this.x = x;
-				this.y = y;
+				this.x = this.playerInfo.x;
+				this.y = this.playerInfo.y;
+				// 名前
+				this.loginName = new Label(this.playerInfo.loginName);
+				this.loginName.width = 100;
+				this.loginName.color = 'black';
+				this.loginName.x = this.x + 10;
+				this.loginName.y = this.y - 15;
 				this.frame = 0;
 				this.on('enterframe', () => {
 					let tempy = this.y;
@@ -110,9 +131,11 @@ window.onload = () => {
 					if(input.up && !preInput && !jump) {
 					  gravity = -12.0;
 					  jump = true;
+					  this.loginName.y = this.y - 15;
 					}
 					if (input.right) {
 						this.x += player_speed;
+						this.loginName.x += player_speed;
 						this.frame = this.age % 2 + 2;
 					}
 					if (input.down) {
@@ -121,6 +144,7 @@ window.onload = () => {
 					if (input.left) {
 						this.scaleX = 1;
 						this.x -= player_speed;
+						this.loginName.x -= player_speed;
 						this.frame = this.age % 2 + 2;
 					}
 
@@ -138,17 +162,38 @@ window.onload = () => {
 					let [left, top] = [0, 0];
 					let [right, bottom] = [screen_width - this.width, screen_height - this.heigh];
 
-					if (this.x < left) {
+					if (this.x < left || this.loginName.x < left) {
 						this.x = left;
-					} else if (this.x > right) {
+						this.loginName.x = left;
+					} else if (this.x > right || this.loginName.x > right) {
 						this.x = right;
+						this.loginName.x = right;
 					}
-					if (this.y < top) {
+					if (this.y < top || this.loginName.y < top) {
 						this.y = top;
-					} else if (this.y > bottom) {
+						this.loginName.y = top;
+					} else if (this.y > bottom || this.loginName.y > bottom) {
 						this.y = bottom;
+						this.loginName.y = bottom;
 					}
 				});
+			},
+			setSettingFile: function(settingFile) {
+				this.settingFile = settingFile;
+				let core = enchant.Core.instance;
+				if (core.assets[this.settingFile]) {
+					this.setSetting(core.assets[this.settingFile]);
+				}
+			},
+			setSetting: function(setting) {
+				let info = JSON.parse(setting);
+
+				this.width = info.width;
+				this.height = info.height;
+				this.x = info.x;
+				this.y = info.y;
+				console.log(this.x);
+				this.setImage(info.image);
 			},
 			attack: function() {
 				this.frame = this.age % 3 + 4;
@@ -214,26 +259,23 @@ window.onload = () => {
 
 
 		function battleScene() {
-			socket.emit('request', () => {
 				root.addChild(bg);
 				root.addChild(LifeP1);
 				root.addChild(LifeP2);
 
-				const player01 = new Player01(screen_width / 5, 220);
+				const player01 = new Player01(playerInfo);
 				root.addChild(player01);
+				root.addChild(player01.loginName);
 
 				const player02 = new Player02(screen_width / 1.5, 220);
 				root.addChild(player02);
 
 				const player03 = new Player03(screen_width / 2, 100);
-				console.log(player03);
 
 				if (player01.x > player02.x) {
 					player01.scaleX = 1;
 					console.log(player01);
 				}
-			});
-
 			return scene;
 		}
 
