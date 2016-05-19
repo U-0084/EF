@@ -7,40 +7,42 @@
 var app = require('../app');
 var debug = require('debug')('hoge:server');
 var http = require('http');
-var server = http.createServer(app);
+var server = http.Server(app);
 var socketIO = require('socket.io');
-var io = socketIO.listen(server);
+var io = socketIO(server);
 
-var chat = io.socket.on('connection', (socket) => {
-  socket.emit(connecter);
-  console.log(`${socket.id + connected.}`);
 
-  socket.on('init', (req) {
-    socket.Roominfoinfo = req.room;
-    socket.join(req.room);
-    
+
+
+io.on('connection', function(socket) {
+  socket.on('pushUp01', function() {
+    socket.broadcast.emit('pushUp01');
   });
+  socket.on('pushRight01', function() {
+    socket.broadcast.emit('pushRight01');
+  });
+  socket.on('pushDown01', function() {
+    socket.broadcast.emit('pushDown01');
+  });
+  socket.on('pushLeft01', function() {
+    socket.broadcast.emit('pushLeft01');
+  });
+  // socketIO.emit('sendMessageToClient', {
+  //   value: '入室しました。'
+  // });
+
+  // socket.on('sendMessageToServer', function(data) {
+  //   socketIO.emit('sendMessageToClient', {
+  //     value: data.value
+  //   });
+  // });
+
+  // socket.on('disconnect', function() {
+  //   socketIO.emit('sendMessageToClient', {
+  //     value: '退室しました。'
+  //   });
+  // });
 });
-
-
-
-// socketIO.on('connection', function(socket) {
-//   socketIO.emit('sendMessageToClient', {
-//     value: '入室しました。'
-//   });
-
-//   socket.on('sendMessageToServer', function(data) {
-//     socketIO.emit('sendMessageToClient', {
-//       value: data.value
-//     });
-//   });
-
-//   socket.on('disconnect', function() {
-//     socketIO.emit('sendMessageToClient', {
-//       value: '退室しました。'
-//     });
-//   });
-// });
 
 /**
  * Get port from environment and store in Express.
@@ -52,6 +54,11 @@ app.set('port', port);
 /**
  * Create HTTP server.
  */
+
+server.listen(app.get('port'), function() {
+  console.log('listening!');
+});
+
 
 /**
  * Listen on provided port, on all network interfaces.

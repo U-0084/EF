@@ -16,7 +16,9 @@ var bg_battle_image01 = thisServer + 'images/bg_battle01.jpg';
 
 var assets = [player01_image, player02_image, bg_battle_image01];
 
-var name = window.prompt('ユーザー名を入力してください');
+var player01 = void 0;
+
+// const name = window.prompt('ユーザー名を入力してください');
 
 var player = null;
 
@@ -30,20 +32,34 @@ var playerInfo = {
 
 // 繋がった時の処理
 socket.on('connect', function () {
-
 	playerInfo.id = socket.id;
 
-	Push.create('' + serviceName, {
-		body: name + 'さんがログインしました。',
-		icon: {
-			x32: '/images/player01.gif'
-		},
-		timeout: 5000
-	});
-
 	socket.emit('name', playerInfo);
-	console.log(socket);
-	console.log(playerInfo);
+
+	socket.on('pushUp01', function () {});
+	socket.on('pushRight01', function () {
+		player01.x += 15;
+		player01.frame = player01.age % 2 + 2;
+		// let f_event = document.createEvent("Event");
+		// f_event.initEvent('keydown',true,true);
+		// f_event.keyCode = 39;
+		// document.dispatchEvent(f_event);
+	});
+	socket.on('pushDown01', function () {
+		// let f_event = document.createEvent("Event");
+		// f_event.initEvent('keydown',true,true);
+		// f_event.keyCode = 40;
+		// document.dispatchEvent(f_event);
+	});
+	socket.on('pushLeft01', function () {
+		player01.x -= 15;
+		player01.loginName.x -= 15;
+		player01.frame = player01.age % 2 + 2;
+		// let f_event = document.createEvent("Event");
+		// f_event.initEvent('keydown',true,true);
+		// f_event.keyCode = 37;
+		// document.dispatchEvent( f_event );
+	});
 });
 
 socket.on('longmessage', function (data) {
@@ -129,19 +145,23 @@ window.onload = function () {
 					_this.frame = 0;
 					_this.scaleX = -1;
 					if (input.up && !preInput && !jump) {
+						socket.emit('pushUp01');
 						gravity = -12.0;
 						jump = true;
 						_this.loginName.y = _this.y - 15;
 					}
 					if (input.right) {
+						socket.emit('pushRight01');
 						_this.x += player_speed;
 						_this.loginName.x += player_speed;
 						_this.frame = _this.age % 2 + 2;
 					}
 					if (input.down) {
+						socket.emit('pushDown01');
 						_this.frame = 8;
 					}
 					if (input.left) {
+						socket.emit('pushLeft01');
 						_this.scaleX = 1;
 						_this.x -= player_speed;
 						_this.loginName.x -= player_speed;
@@ -266,7 +286,7 @@ window.onload = function () {
 			root.addChild(LifeP1);
 			root.addChild(LifeP2);
 
-			var player01 = new Player01(playerInfo);
+			player01 = new Player01(playerInfo);
 			root.addChild(player01);
 			root.addChild(player01.loginName);
 

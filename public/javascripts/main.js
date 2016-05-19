@@ -16,7 +16,9 @@ const assets = [
 	bg_battle_image01
 ];
 
-const name = window.prompt('ユーザー名を入力してください');
+let player01;
+
+// const name = window.prompt('ユーザー名を入力してください');
 
 const player = null;
 
@@ -30,20 +32,35 @@ const playerInfo = {
 
 // 繋がった時の処理
 socket.on('connect', () => {
-
 	playerInfo.id = socket.id;
 
-	Push.create(`${serviceName}`, {
-    body: `${name}さんがログインしました。`,
-    icon: {
-      x32: '/images/player01.gif'
-    },
-    timeout: 5000
-  });
-
 	socket.emit('name', playerInfo);
-	console.log(socket);
-	console.log(playerInfo);
+
+	socket.on('pushUp01', () => {
+	});
+	socket.on('pushRight01', () => {
+		player01.x += 15;
+		player01.frame = player01.age % 2 + 2;
+		// let f_event = document.createEvent("Event");
+		// f_event.initEvent('keydown',true,true);
+		// f_event.keyCode = 39;
+		// document.dispatchEvent(f_event);
+	});
+	socket.on('pushDown01', () => {
+		// let f_event = document.createEvent("Event");
+		// f_event.initEvent('keydown',true,true);
+		// f_event.keyCode = 40;
+		// document.dispatchEvent(f_event);
+	});
+	socket.on('pushLeft01', () => {
+		player01.x -= 15;
+		player01.loginName.x -= 15;
+		player01.frame = player01.age % 2 + 2;
+		// let f_event = document.createEvent("Event");
+		// f_event.initEvent('keydown',true,true);
+		// f_event.keyCode = 37;
+		// document.dispatchEvent( f_event );
+	});
 });
 
 socket.on('longmessage', (data) => {
@@ -129,19 +146,23 @@ window.onload = () => {
 					this.frame = 0;
 					this.scaleX = -1;
 					if(input.up && !preInput && !jump) {
+						socket.emit('pushUp01');
 					  gravity = -12.0;
 					  jump = true;
 					  this.loginName.y = this.y - 15;
 					}
 					if (input.right) {
+						socket.emit('pushRight01');
 						this.x += player_speed;
 						this.loginName.x += player_speed;
 						this.frame = this.age % 2 + 2;
 					}
 					if (input.down) {
+						socket.emit('pushDown01');
 						this.frame = 8;
 					}
 					if (input.left) {
+						socket.emit('pushLeft01');
 						this.scaleX = 1;
 						this.x -= player_speed;
 						this.loginName.x -= player_speed;
@@ -263,7 +284,7 @@ window.onload = () => {
 				root.addChild(LifeP1);
 				root.addChild(LifeP2);
 
-				const player01 = new Player01(playerInfo);
+				player01 = new Player01(playerInfo);
 				root.addChild(player01);
 				root.addChild(player01.loginName);
 
