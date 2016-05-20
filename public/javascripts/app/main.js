@@ -3,7 +3,7 @@
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var serviceName = 'Enginner Fighter';
-var thisServer = 'http://localhost:3000/';
+var thisServer = 'http://localhost:35729/';
 var socket = io.connect(thisServer);
 
 var screen_width = 640;

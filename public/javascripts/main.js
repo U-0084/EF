@@ -1,5 +1,5 @@
 const serviceName = 'Enginner Fighter';
-const thisServer = 'http://localhost:3000/';
+const thisServer = 'http://localhost:35729/';
 const socket = io.connect(thisServer);
 
 const screen_width = 640;
