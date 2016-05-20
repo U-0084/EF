@@ -39,7 +39,7 @@ socket.on('connect', () => {
 	socket.on('pushUp01', () => {
 	});
 	socket.on('pushRight01', () => {
-		player01.x += 15;
+		player01.x = player01.x + 15;
 		player01.frame = player01.age % 2 + 2;
 		// let f_event = document.createEvent("Event");
 		// f_event.initEvent('keydown',true,true);
@@ -53,7 +53,7 @@ socket.on('connect', () => {
 		// document.dispatchEvent(f_event);
 	});
 	socket.on('pushLeft01', () => {
-		player01.x -= 15;
+		player01.x = player01.x - 15;
 		player01.loginName.x -= 15;
 		player01.frame = player01.age % 2 + 2;
 		// let f_event = document.createEvent("Event");
@@ -149,6 +149,7 @@ window.onload = () => {
 						socket.emit('pushUp01');
 					  gravity = -12.0;
 					  jump = true;
+					  this.frame = 1;
 					  this.loginName.y = this.y - 15;
 					}
 					if (input.right) {
@@ -264,7 +265,7 @@ window.onload = () => {
 				});
 			}
 		});
-
+  
 		function Attack01Fuc() {
 			const attack01 = new Attack01();
 			root.addChild(attack01);

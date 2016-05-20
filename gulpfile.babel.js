@@ -6,7 +6,6 @@ import babel from 'gulp-babel';
 import nodemon from 'gulp-nodemon';
 
 const browserSyncCreate = browserSync.create();
-const reload = browserSyncCreate.reload;
 
 
 gulp.task('babel', () => {
@@ -45,7 +44,7 @@ gulp.task('nodemon', cb => {
 
 
 gulp.task('browser-sync', ['nodemon', 'babel'], () => {
-	browserSyncCreate.init(null, {
+	browserSyncCreate.init({
 		proxy: {
 			target: 'http://localhost:3000',
 			ws: true
@@ -55,8 +54,13 @@ gulp.task('browser-sync', ['nodemon', 'babel'], () => {
 });
 
 
+gulp.task('bs-reload', () => {
+	browserSyncCreate.reload();
+});
+
+
 gulp.task('watch', () => {
-	gulp.watch(['./public/javascripts/*.js'], ['babel'], reload);
+	gulp.watch(['./public/javascripts/*.js'], ['babel','bs-reload']);
 });
 
 

@@ -38,7 +38,7 @@ socket.on('connect', function () {
 
 	socket.on('pushUp01', function () {});
 	socket.on('pushRight01', function () {
-		player01.x += 15;
+		player01.x = player01.x + 15;
 		player01.frame = player01.age % 2 + 2;
 		// let f_event = document.createEvent("Event");
 		// f_event.initEvent('keydown',true,true);
@@ -52,7 +52,7 @@ socket.on('connect', function () {
 		// document.dispatchEvent(f_event);
 	});
 	socket.on('pushLeft01', function () {
-		player01.x -= 15;
+		player01.x = player01.x - 15;
 		player01.loginName.x -= 15;
 		player01.frame = player01.age % 2 + 2;
 		// let f_event = document.createEvent("Event");
@@ -148,6 +148,7 @@ window.onload = function () {
 						socket.emit('pushUp01');
 						gravity = -12.0;
 						jump = true;
+						_this.frame = 1;
 						_this.loginName.y = _this.y - 15;
 					}
 					if (input.right) {
