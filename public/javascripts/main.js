@@ -36,15 +36,12 @@ socket.on('connect', () => {
 
 	socket.emit('name', playerInfo);
 
-	socket.on('pushUp01', () => {
-	});
-	socket.on('pushRight01', () => {
-		player01.x = player01.x + 15;
-		player01.frame = player01.age % 2 + 2;
-		// let f_event = document.createEvent("Event");
-		// f_event.initEvent('keydown',true,true);
-		// f_event.keyCode = 39;
-		// document.dispatchEvent(f_event);
+	socket.on('pushUp01', () => {});
+	socket.on('pushRight01', e => {
+		let f_event = document.createEvent('Event');
+		f_event.initEvent('keydown',true, true);
+		f_event.keyCode = 39;
+		document.dispatchEvent(f_event);　
 	});
 	socket.on('pushDown01', () => {
 		// let f_event = document.createEvent("Event");
@@ -53,13 +50,10 @@ socket.on('connect', () => {
 		// document.dispatchEvent(f_event);
 	});
 	socket.on('pushLeft01', () => {
-		player01.x = player01.x - 15;
-		player01.loginName.x -= 15;
-		player01.frame = player01.age % 2 + 2;
 		// let f_event = document.createEvent("Event");
-		// f_event.initEvent('keydown',true,true);
+		// f_event.initEvent('keydown',false, false);
 		// f_event.keyCode = 37;
-		// document.dispatchEvent( f_event );
+		// document.dispatchEvent(f_event);
 	});
 });
 
@@ -145,11 +139,12 @@ window.onload = () => {
 
 					this.frame = 0;
 					this.scaleX = -1;
-					if(input.up && !preInput && !jump) {
+
+					if (input.up && !preInput && !jump) {
 						socket.emit('pushUp01');
 					  gravity = -12.0;
 					  jump = true;
-					  this.frame = 1;
+
 					  this.loginName.y = this.y - 15;
 					}
 					if (input.right) {
@@ -265,7 +260,7 @@ window.onload = () => {
 				});
 			}
 		});
-  
+
 		function Attack01Fuc() {
 			const attack01 = new Attack01();
 			root.addChild(attack01);

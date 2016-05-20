@@ -14,7 +14,7 @@ var io = socketIO(server);
 
 
 
-io.on('connection', function(socket) {
+io.on('connection', socket => {
   socket.on('pushUp01', function() {
     socket.broadcast.emit('pushUp01');
   });

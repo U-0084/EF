@@ -37,13 +37,11 @@ socket.on('connect', function () {
 	socket.emit('name', playerInfo);
 
 	socket.on('pushUp01', function () {});
-	socket.on('pushRight01', function () {
-		player01.x = player01.x + 15;
-		player01.frame = player01.age % 2 + 2;
-		// let f_event = document.createEvent("Event");
-		// f_event.initEvent('keydown',true,true);
-		// f_event.keyCode = 39;
-		// document.dispatchEvent(f_event);
+	socket.on('pushRight01', function (e) {
+		var f_event = document.createEvent('Event');
+		f_event.initEvent('keydown', true, true);
+		f_event.keyCode = 39;
+		document.dispatchEvent(f_event);
 	});
 	socket.on('pushDown01', function () {
 		// let f_event = document.createEvent("Event");
@@ -52,13 +50,10 @@ socket.on('connect', function () {
 		// document.dispatchEvent(f_event);
 	});
 	socket.on('pushLeft01', function () {
-		player01.x = player01.x - 15;
-		player01.loginName.x -= 15;
-		player01.frame = player01.age % 2 + 2;
 		// let f_event = document.createEvent("Event");
-		// f_event.initEvent('keydown',true,true);
+		// f_event.initEvent('keydown',false, false);
 		// f_event.keyCode = 37;
-		// document.dispatchEvent( f_event );
+		// document.dispatchEvent(f_event);
 	});
 });
 
@@ -144,11 +139,12 @@ window.onload = function () {
 
 					_this.frame = 0;
 					_this.scaleX = -1;
+
 					if (input.up && !preInput && !jump) {
 						socket.emit('pushUp01');
 						gravity = -12.0;
 						jump = true;
-						_this.frame = 1;
+
 						_this.loginName.y = _this.y - 15;
 					}
 					if (input.right) {
