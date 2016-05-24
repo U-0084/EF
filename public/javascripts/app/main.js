@@ -47,25 +47,6 @@ socket.on('connect', function () {
 	playerInfo.id = socket.id;
 
 	socket.emit('name', playerInfo);
-
-	socket.on('pushUp01', function () {});
-
-	socket.on('pushRight01', function () {
-		player01.x += 15;
-		player01.loginName.x += 15;
-		player01.frame = player01.age % 2 + 2;
-	});
-
-	socket.on('pushDown01', function () {
-		player01.frame = 8;
-	});
-
-	socket.on('pushLeft01', function () {
-		player01.scaleX = 1;
-		player01.x -= 15;
-		player01.loginName.x -= 15;
-		player01.frame = player01.age % 2 + 2;
-	});
 });
 
 window.onload = function () {
@@ -130,6 +111,11 @@ window.onload = function () {
 				otherPlayer.frame = pos.frame;
 			};
 			otherPlayer.setPosition.bind(otherPlayerInfo);
+
+			socket.on('pushRight01:' + id, function (pos) {
+				otherPlayer.setPosition.bind(pos);
+				console.log(otherPlayer.setPosition.otherPlayer.x);
+			});
 		});
 
 		// // ジャンプ
@@ -197,7 +183,6 @@ window.onload = function () {
 						_this.frame = _this.age % 2 + 2;
 						socket.emit('pushRight01', {
 							x: _this.x,
-							y: _this.y,
 							frame: _this.frame
 						});
 					}
