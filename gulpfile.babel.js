@@ -27,7 +27,7 @@ gulp.task('nodemon', cb => {
 	return nodemon({
 		script: './bin/www',
 		ext: 'js html',
-		ignore: ['./public', 'node_modules']
+		ignore: ['node_modules']
 	})
 	.on('start', () => {
 		if (!called) {
@@ -49,7 +49,7 @@ gulp.task('browser-sync', ['nodemon', 'babel'], () => {
 			target: 'http://localhost:3000',
 			ws: true
 		},
-		port: 35729
+		port: 9000
 	});
 });
 
@@ -60,8 +60,8 @@ gulp.task('bs-reload', () => {
 
 
 gulp.task('watch', () => {
-	gulp.watch(['./public/javascripts/*.js'], ['babel','bs-reload']);
+	gulp.watch(['./public/javascripts/*.js'], ['babel', 'nodemon', 'bs-reload']);
 });
 
 
-gulp.task('default', ['browser-sync', 'babel', 'watch']);
+gulp.task('default', ['browser-sync', 'nodemon', 'babel', 'watch']);

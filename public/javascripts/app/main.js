@@ -3,7 +3,7 @@
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var serviceName = 'Enginner Fighter';
-var thisServer = 'http://localhost:35729/';
+var thisServer = 'http://localhost:3000/';
 var socket = io.connect(thisServer);
 
 var screen_width = 640;
@@ -20,48 +20,53 @@ var player01 = void 0;
 
 // const name = window.prompt('ユーザー名を入力してください');
 
-var player = null;
-
 var playerInfo = {
 	id: '',
-	loginName: name,
+	loginName: 'イギー',
 	x: screen_width / 5,
 	y: 220,
-	settingFile: thisServer + 'data/player01.json'
+	settingFile: thisServer + 'data/player01.json',
+	img: thisServer + 'images/main.png'
 };
+var player = null;
+var otherPlayers = {};
+
+enchant();
 
 // 繋がった時の処理
 socket.on('connect', function () {
+
+	Push.create('Enginner Fighter', {
+		body: playerInfo.loginName + 'がログインしました。',
+		icon: {
+			x32: '' + playerInfo.img
+		},
+		timeout: 3000
+	});
+
 	playerInfo.id = socket.id;
 
 	socket.emit('name', playerInfo);
 
 	socket.on('pushUp01', function () {});
-	socket.on('pushRight01', function (e) {
-		var f_event = document.createEvent('Event');
-		f_event.initEvent('keydown', true, true);
-		f_event.keyCode = 39;
-		document.dispatchEvent(f_event);
+
+	socket.on('pushRight01', function () {
+		player01.x += 15;
+		player01.loginName.x += 15;
+		player01.frame = player01.age % 2 + 2;
 	});
+
 	socket.on('pushDown01', function () {
-		// let f_event = document.createEvent("Event");
-		// f_event.initEvent('keydown',true,true);
-		// f_event.keyCode = 40;
-		// document.dispatchEvent(f_event);
+		player01.frame = 8;
 	});
+
 	socket.on('pushLeft01', function () {
-		// let f_event = document.createEvent("Event");
-		// f_event.initEvent('keydown',false, false);
-		// f_event.keyCode = 37;
-		// document.dispatchEvent(f_event);
+		player01.scaleX = 1;
+		player01.x -= 15;
+		player01.loginName.x -= 15;
+		player01.frame = player01.age % 2 + 2;
 	});
 });
-
-socket.on('longmessage', function (data) {
-	longpush(data);
-});
-
-enchant();
 
 window.onload = function () {
 
@@ -111,6 +116,45 @@ window.onload = function () {
 		bg.x = 0;
 		bg.y = 0;
 
+		socket.on('name', function (otherPlayerInfo) {
+
+			var id = otherPlayerInfo.id;
+			var otherPlayer = otherPlayers[id] = new Sprite(64, 64);
+			otherPlayer.id = id;
+			otherPlayer.x = 0;
+			otherPlayer.y = 0;
+
+			otherPlayer.setPosition = function (pos) {
+				otherPlayer.x = pos.x;
+				otherPlayer.y = pos.y;
+				otherPlayer.frame = pos.frame;
+			};
+			otherPlayer.setPosition.bind(otherPlayerInfo);
+		});
+
+		// // ジャンプ
+		// socket.on('pushUp01', () => {
+		//   socket.broadcast.emit('pushUp01');
+		// });
+
+		// // 右に移動
+		// socket.on('pushRight01', pos => {
+		//   var playerInfo = playerInfos[socket.id];
+		//   if (!playerInfo) {
+		//     return;
+		//   }
+		//   console.log(`id: ${playerInfo.id}, name: ${playerInfo.loginName}, x: ${pos.x}, y: ${pos.y}, frame: ${pos.frame}`);
+		//   socket.broadcast.emit('pushRight01');
+		// });
+
+		// socket.on('pushDown01', () => {
+		//   socket.broadcast.emit('pushDown01');
+		// });
+
+		// socket.on('pushLeft01', () => {
+		//   socket.broadcast.emit('pushLeft01');
+		// });
+
 		var Player01 = Class.create(Sprite, {
 			initialize: function initialize(playerInfo) {
 				var _this = this;
@@ -148,10 +192,14 @@ window.onload = function () {
 						_this.loginName.y = _this.y - 15;
 					}
 					if (input.right) {
-						socket.emit('pushRight01');
 						_this.x += player_speed;
 						_this.loginName.x += player_speed;
 						_this.frame = _this.age % 2 + 2;
+						socket.emit('pushRight01', {
+							x: _this.x,
+							y: _this.y,
+							frame: _this.frame
+						});
 					}
 					if (input.down) {
 						socket.emit('pushDown01');
@@ -196,6 +244,8 @@ window.onload = function () {
 						_this.loginName.y = bottom;
 					}
 				});
+
+				return this;
 			},
 			setSettingFile: function setSettingFile(settingFile) {
 				this.settingFile = settingFile;

@@ -1,5 +1,5 @@
 const serviceName = 'Enginner Fighter';
-const thisServer = 'http://localhost:35729/';
+const thisServer = 'http://localhost:3000/';
 const socket = io.connect(thisServer);
 
 const screen_width = 640;
@@ -20,48 +20,55 @@ let player01;
 
 // const name = window.prompt('ユーザー名を入力してください');
 
-const player = null;
-
 const playerInfo = {
 	id: '',
-	loginName: name,
+	loginName: 'イギー',
 	x: screen_width / 5,
 	y: 220,
-	settingFile: `${thisServer}data/player01.json`
+	settingFile: `${thisServer}data/player01.json`,
+	img: `${thisServer}images/main.png`
 };
+const player = null;
+const otherPlayers = {};
+
+enchant();
 
 // 繋がった時の処理
 socket.on('connect', () => {
+
+	Push.create('Enginner Fighter', {
+		body: `${playerInfo.loginName}がログインしました。`,
+		icon: {
+			x32: `${playerInfo.img}`
+		},
+		timeout: 3000
+	});
+
 	playerInfo.id = socket.id;
 
 	socket.emit('name', playerInfo);
 
-	socket.on('pushUp01', () => {});
-	socket.on('pushRight01', e => {
-		let f_event = document.createEvent('Event');
-		f_event.initEvent('keydown',true, true);
-		f_event.keyCode = 39;
-		document.dispatchEvent(f_event);　
+	socket.on('pushUp01', () => {
+
 	});
+
+	socket.on('pushRight01', () => {
+		player01.x += 15;
+		player01.loginName.x += 15;
+		player01.frame = player01.age % 2 + 2;
+	});
+
 	socket.on('pushDown01', () => {
-		// let f_event = document.createEvent("Event");
-		// f_event.initEvent('keydown',true,true);
-		// f_event.keyCode = 40;
-		// document.dispatchEvent(f_event);
+		player01.frame = 8;
 	});
+
 	socket.on('pushLeft01', () => {
-		// let f_event = document.createEvent("Event");
-		// f_event.initEvent('keydown',false, false);
-		// f_event.keyCode = 37;
-		// document.dispatchEvent(f_event);
+		player01.scaleX = 1;
+		player01.x -= 15;
+		player01.loginName.x -= 15;
+		player01.frame = player01.age % 2 + 2;
 	});
 });
-
-socket.on('longmessage', (data) => {
-	longpush(data);
-});
-
-enchant();
 
 window.onload = () => {
 
@@ -113,6 +120,46 @@ window.onload = () => {
 		bg.x = 0;
 		bg.y = 0;
 
+		socket.on('name', otherPlayerInfo => {
+
+			let id = otherPlayerInfo.id;
+			const otherPlayer = otherPlayers[id] = new Sprite(64, 64);
+			otherPlayer.id = id;
+			otherPlayer.x = 0;
+			otherPlayer.y = 0;
+
+			otherPlayer.setPosition = pos => {
+				otherPlayer.x = pos.x;
+				otherPlayer.y = pos.y;
+				otherPlayer.frame = pos.frame;
+			}
+			otherPlayer.setPosition.bind(otherPlayerInfo);
+		});
+
+		 // // ジャンプ
+	  // socket.on('pushUp01', () => {
+	  //   socket.broadcast.emit('pushUp01');
+	  // });
+
+	  // // 右に移動
+	  // socket.on('pushRight01', pos => {
+	  //   var playerInfo = playerInfos[socket.id];
+	  //   if (!playerInfo) {
+	  //     return;
+	  //   }
+	  //   console.log(`id: ${playerInfo.id}, name: ${playerInfo.loginName}, x: ${pos.x}, y: ${pos.y}, frame: ${pos.frame}`);
+	  //   socket.broadcast.emit('pushRight01');
+	  // });
+
+	  // socket.on('pushDown01', () => {
+	  //   socket.broadcast.emit('pushDown01');
+	  // });
+
+	  // socket.on('pushLeft01', () => {
+	  //   socket.broadcast.emit('pushLeft01');
+	  // });
+
+
 		const Player01 = Class.create(Sprite, {
 			initialize: function(playerInfo) {
 				let ground = 220;
@@ -148,10 +195,14 @@ window.onload = () => {
 					  this.loginName.y = this.y - 15;
 					}
 					if (input.right) {
-						socket.emit('pushRight01');
 						this.x += player_speed;
 						this.loginName.x += player_speed;
 						this.frame = this.age % 2 + 2;
+						socket.emit('pushRight01', {
+							x: this.x,
+							y: this.y,
+							frame: this.frame
+						});
 					}
 					if (input.down) {
 						socket.emit('pushDown01');
@@ -194,6 +245,8 @@ window.onload = () => {
 						this.loginName.y = bottom;
 					}
 				});
+
+				return this;
 			},
 			setSettingFile: function(settingFile) {
 				this.settingFile = settingFile;
