@@ -25,6 +25,7 @@ const playerInfo = {
 	loginName: 'イギー',
 	x: screen_width / 5,
 	y: 220,
+	frame: 1,
 	settingFile: `${thisServer}data/player01.json`,
 	img: `${thisServer}images/main.png`
 };
@@ -114,34 +115,34 @@ window.onload = () => {
 			}
 			otherPlayer.setPosition.bind(otherPlayerInfo);
 
+			// player01のジャンプ
+			socket.on('pushUp01:' + id, pos => {
+				player01.y = pos.y;
+				player01.frame = pos.frame;
+				console.log(`y: ${player01.y}, frame: ${player01.frame}`);
+			});
+
+			// player01の右移動
 			socket.on('pushRight01:' + id, pos => {
-				otherPlayer.setPosition.bind(pos);
-				console.log(otherPlayer.setPosition.otherPlayer.x);
+				player01.x = pos.x;
+				player01.frame = pos.frame;
+				console.log(`x: ${player01.x}, frame: ${player01.frame}`);
+			});
+
+			// player01のかかみ
+			socket.on('pushDown01:' + id, pos => {
+				player01.y = pos.y;
+				player01.frame = pos.frame;
+				console.log(`y: ${player01.y}, frame: ${player01.frame}`);
+			});
+
+			// player01の左移動
+			socket.on('pushLeft01:' + id, pos => {
+				player01.x = pos.x;
+				player01.frame = pos.frame;
+				console.log(`x: ${player01.x}, frame: ${player01.frame}`);
 			});
 		});
-
-		 // // ジャンプ
-	  // socket.on('pushUp01', () => {
-	  //   socket.broadcast.emit('pushUp01');
-	  // });
-
-	  // // 右に移動
-	  // socket.on('pushRight01', pos => {
-	  //   var playerInfo = playerInfos[socket.id];
-	  //   if (!playerInfo) {
-	  //     return;
-	  //   }
-	  //   console.log(`id: ${playerInfo.id}, name: ${playerInfo.loginName}, x: ${pos.x}, y: ${pos.y}, frame: ${pos.frame}`);
-	  //   socket.broadcast.emit('pushRight01');
-	  // });
-
-	  // socket.on('pushDown01', () => {
-	  //   socket.broadcast.emit('pushDown01');
-	  // });
-
-	  // socket.on('pushLeft01', () => {
-	  //   socket.broadcast.emit('pushLeft01');
-	  // });
 
 
 		const Player01 = Class.create(Sprite, {
@@ -172,11 +173,15 @@ window.onload = () => {
 					this.scaleX = -1;
 
 					if (input.up && !preInput && !jump) {
-						socket.emit('pushUp01');
 					  gravity = -12.0;
 					  jump = true;
 
 					  this.loginName.y = this.y - 15;
+
+					  socket.emit('pushUp01', {
+					  	y: this.y,
+					  	frame: this.frame
+					  });
 					}
 					if (input.right) {
 						this.x += player_speed;
@@ -187,16 +192,24 @@ window.onload = () => {
 							frame: this.frame
 						});
 					}
+
 					if (input.down) {
-						socket.emit('pushDown01');
 						this.frame = 8;
+						socket.emit('pushDown01', {
+							y: this.y,
+							frame: this.frame
+						});
 					}
+
 					if (input.left) {
-						socket.emit('pushLeft01');
 						this.scaleX = 1;
 						this.x -= player_speed;
 						this.loginName.x -= player_speed;
 						this.frame = this.age % 2 + 2;
+						socket.emit('pushLeft01', {
+							x: this.x,
+							frame: this.frame
+						});
 					}
 
 					this.y += (this.y - ground) + gravity;
