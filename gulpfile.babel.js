@@ -8,6 +8,7 @@ import sass from 'gulp-sass';
 import nodemon from 'gulp-nodemon';
 
 const browserSync = BrowserSync.create();
+const reload = browserSync.reload;
 
 
 const path = {
@@ -78,13 +79,13 @@ gulp.task('nodemon', cb => {
 	})
 	.on('restart', () => {
 			setTimeout(() => {
-				browserSync.reload();
+				reload();
 			}, 500);
 	});
 });
 
 
-gulp.task('browser-sync', ['nodemon', 'babel'], () => {
+gulp.task('browser-sync', ['nodemon'], () => {
 	browserSync.init({
 		proxy: {
 			target: 'http://localhost:3000',
@@ -95,14 +96,7 @@ gulp.task('browser-sync', ['nodemon', 'babel'], () => {
 });
 
 
-gulp.task('bs-reload', () => {
-	browserSync.reload();
+gulp.task('default', ['browser-sync'], () => {
+	gulp.watch(path.scss.watch, ['sass'], reload());
+	gulp.watch(path.js.watch, ['babel'], reload());
 });
-
-
-gulp.task('watch', () => {
-	gulp.watch(['./public/javascripts/*.js'], ['babel', 'nodemon', 'bs-reload']);
-});
-
-
-gulp.task('default', ['browser-sync', 'nodemon', 'babel']);
