@@ -1,11 +1,14 @@
 import gulp from 'gulp';
 import fs from 'fs';
 import plumber from 'gulp-plumber';
-import BrowserSync from 'browser-sync';
 import eslint from 'gulp-eslint';
-import babel from 'gulp-babel';
 import sass from 'gulp-sass';
 import nodemon from 'gulp-nodemon';
+import browserify from 'browserify';
+import babelify from 'babelify';
+import source from 'vinyl-source-stream';
+import buffer from 'vinyl-buffer';
+import BrowserSync from 'browser-sync';
 
 const browserSync = BrowserSync.create();
 const reload = browserSync.reload;
@@ -21,7 +24,7 @@ const path = {
 		watch: './public/stylesheets/sass/*.scss'
 	},
 	js: {
-		app: './public/javascripts/main.js',
+		app: './public/javascripts/app.js',
 		dist: './public/javascripts/app/',
 		watch: [
 			'./public/javascripts/*.js',
@@ -42,12 +45,18 @@ gulp.task('eslint', () => {
 });
 
 
-gulp.task('babel', () => {
-	return gulp.src(path.js.watch)
-		.pipe(plumber())
-		.pipe(babel({
+gulp.task('browserify', () => {
+	browserify(path.js.app, {
+		debug: true
+	})
+		.transform(babelify, {
 			presets: ['es2015']
-		}))
+		})
+		.bundle()
+		.on('error', err => {
+			console.log(`ERROR: ${err.message}`);
+		})
+		.pipe(source('bundle.js'))
 		.pipe(gulp.dest(path.js.dist));
 });
 
@@ -98,5 +107,5 @@ gulp.task('browser-sync', ['nodemon'], () => {
 
 gulp.task('default', ['browser-sync'], () => {
 	gulp.watch(path.scss.watch, ['sass'], reload());
-	gulp.watch(path.js.watch, ['babel'], reload());
+	gulp.watch(path.js.watch, ['browserify'], reload());
 });
