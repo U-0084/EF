@@ -2,6 +2,7 @@ const serviceName = 'Enginner Fighter';
 const thisServer = 'http://localhost:3000/';
 const socket = io.connect(thisServer);
 
+
 const screen_width = 640;
 const screen_height = 290;
 const player02_width = 80;
@@ -10,21 +11,24 @@ const player01_image = thisServer + 'images/player01.gif';
 const player02_image = thisServer + 'images/player02.gif';
 const bg_battle_image01 = thisServer + 'images/bg_battle01.jpg';
 
+
 const assets = [
 	player01_image,
 	player02_image,
 	bg_battle_image01
 ];
 
-let player01;
-
 // const name = window.prompt('ユーザー名を入力してください');
+
+let player01;
 
 const playerInfo = {
 	id: '',
 	loginName: 'イギー',
 	x: screen_width / 5,
 	y: 220,
+	nameX: 0,
+	nameY: 0,
 	frame: 1,
 	settingFile: `${thisServer}data/player01.json`,
 	img: `${thisServer}images/main.png`
@@ -52,12 +56,14 @@ socket.on('connect', () => {
 
 window.onload = () => {
 
+
 	if (window.GamepadEvent) {
 		window.addEventListener('gamepadconnected', e => {
 			console.log("ゲームパッドが接続されました。");
 			console.log(e.gamepad);
 		});
 	}
+
 
 	const gamepad = navigator.getGamepads && navigator.getGamepads()[0];
 
@@ -76,9 +82,11 @@ window.onload = () => {
 	game.keybind(65, 'a');
 	game.onload = () => {
 
+
 		const root = game.rootScene;
 		const input = game.input;
 		const player_speed = 15;
+
 
 		const LifeP1 = new Entity();
 		LifeP1.width = screen_width / 2 - 10;
@@ -87,6 +95,7 @@ window.onload = () => {
 		LifeP1.y = 10;
 		LifeP1.backgroundColor = '#27e4b2';
 
+
 		const LifeP2 = new Entity();
 		LifeP2.width = -screen_width / 2 + 10;
 		LifeP2.height = 20;
@@ -94,19 +103,23 @@ window.onload = () => {
 		LifeP2.y = 10;
 		LifeP2.backgroundColor = '#27e4b2';
 
+
 		let scene = new Scene();
 		let bg = new Sprite(screen_width, screen_height);
 		bg.image = game.assets[bg_battle_image01];
 		bg.x = 0;
 		bg.y = 0;
 
+
 		socket.on('name', otherPlayerInfo => {
+
 
 			let id = otherPlayerInfo.id;
 			const otherPlayer = otherPlayers[id] = new Sprite(64, 64);
 			otherPlayer.id = id;
 			otherPlayer.x = 0;
 			otherPlayer.y = 0;
+
 
 			otherPlayer.setPosition = pos => {
 				otherPlayer.x = pos.x;
@@ -115,32 +128,47 @@ window.onload = () => {
 			}
 			otherPlayer.setPosition.bind(otherPlayerInfo);
 
+
 			// player01のジャンプ
 			socket.on('pushUp01:' + id, pos => {
+				player01.x = pos.x;
 				player01.y = pos.y;
 				player01.frame = pos.frame;
 				console.log(`y: ${player01.y}, frame: ${player01.frame}`);
 			});
+
 
 			// player01の右移動
 			socket.on('pushRight01:' + id, pos => {
 				player01.x = pos.x;
+				player01.y = pos.y;
 				player01.frame = pos.frame;
 				console.log(`x: ${player01.x}, frame: ${player01.frame}`);
 			});
 
+
 			// player01のかかみ
 			socket.on('pushDown01:' + id, pos => {
+				player01.x = pos.x;
 				player01.y = pos.y;
 				player01.frame = pos.frame;
 				console.log(`y: ${player01.y}, frame: ${player01.frame}`);
 			});
 
+　
 			// player01の左移動
 			socket.on('pushLeft01:' + id, pos => {
+
+				// let moveEvent = document.createEvent('Event');
+				// moveEvent.initEvent('keydown', true, true);
+				// moveEvent.keyCode = 37;
+				// document.dispatchEvent(moveEvent);
+
 				player01.x = pos.x;
-				player01.frame = pos.frame;
+				player01.y = pos.y;
 				console.log(`x: ${player01.x}, frame: ${player01.frame}`);
+
+				return;
 			});
 		});
 
@@ -179,6 +207,7 @@ window.onload = () => {
 					  this.loginName.y = this.y - 15;
 
 					  socket.emit('pushUp01', {
+					  	x: this.x,
 					  	y: this.y,
 					  	frame: this.frame
 					  });
@@ -186,9 +215,12 @@ window.onload = () => {
 					if (input.right) {
 						this.x += player_speed;
 						this.loginName.x += player_speed;
-						this.frame = this.age % 2 + 2;
+						this.frame = this.age % 3 + 1;
 						socket.emit('pushRight01', {
 							x: this.x,
+							y: this.y,
+							nameX: this.loginName.x,
+							nameY: this.loginName.y,
 							frame: this.frame
 						});
 					}
@@ -196,6 +228,7 @@ window.onload = () => {
 					if (input.down) {
 						this.frame = 8;
 						socket.emit('pushDown01', {
+							x: this.x,
 							y: this.y,
 							frame: this.frame
 						});
@@ -205,9 +238,10 @@ window.onload = () => {
 						this.scaleX = 1;
 						this.x -= player_speed;
 						this.loginName.x -= player_speed;
-						this.frame = this.age % 2 + 2;
+						this.frame = this.age % 3 + 1;
 						socket.emit('pushLeft01', {
 							x: this.x,
+							y: this.y,
 							frame: this.frame
 						});
 					}

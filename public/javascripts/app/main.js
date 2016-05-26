@@ -16,15 +16,17 @@ var bg_battle_image01 = thisServer + 'images/bg_battle01.jpg';
 
 var assets = [player01_image, player02_image, bg_battle_image01];
 
-var player01 = void 0;
-
 // const name = window.prompt('ユーザー名を入力してください');
+
+var player01 = void 0;
 
 var playerInfo = {
 	id: '',
 	loginName: 'イギー',
 	x: screen_width / 5,
 	y: 220,
+	nameX: 0,
+	nameY: 0,
 	frame: 1,
 	settingFile: thisServer + 'data/player01.json',
 	img: thisServer + 'images/main.png'
@@ -115,6 +117,7 @@ window.onload = function () {
 
 			// player01のジャンプ
 			socket.on('pushUp01:' + id, function (pos) {
+				player01.x = pos.x;
 				player01.y = pos.y;
 				player01.frame = pos.frame;
 				console.log('y: ' + player01.y + ', frame: ' + player01.frame);
@@ -123,12 +126,14 @@ window.onload = function () {
 			// player01の右移動
 			socket.on('pushRight01:' + id, function (pos) {
 				player01.x = pos.x;
+				player01.y = pos.y;
 				player01.frame = pos.frame;
 				console.log('x: ' + player01.x + ', frame: ' + player01.frame);
 			});
 
 			// player01のかかみ
 			socket.on('pushDown01:' + id, function (pos) {
+				player01.x = pos.x;
 				player01.y = pos.y;
 				player01.frame = pos.frame;
 				console.log('y: ' + player01.y + ', frame: ' + player01.frame);
@@ -136,9 +141,17 @@ window.onload = function () {
 
 			// player01の左移動
 			socket.on('pushLeft01:' + id, function (pos) {
+
+				// let moveEvent = document.createEvent('Event');
+				// moveEvent.initEvent('keydown', true, true);
+				// moveEvent.keyCode = 37;
+				// document.dispatchEvent(moveEvent);
+
 				player01.x = pos.x;
-				player01.frame = pos.frame;
+				player01.y = pos.y;
 				console.log('x: ' + player01.x + ', frame: ' + player01.frame);
+
+				return;
 			});
 		});
 
@@ -178,6 +191,7 @@ window.onload = function () {
 						_this.loginName.y = _this.y - 15;
 
 						socket.emit('pushUp01', {
+							x: _this.x,
 							y: _this.y,
 							frame: _this.frame
 						});
@@ -185,9 +199,12 @@ window.onload = function () {
 					if (input.right) {
 						_this.x += player_speed;
 						_this.loginName.x += player_speed;
-						_this.frame = _this.age % 2 + 2;
+						_this.frame = _this.age % 3 + 1;
 						socket.emit('pushRight01', {
 							x: _this.x,
+							y: _this.y,
+							nameX: _this.loginName.x,
+							nameY: _this.loginName.y,
 							frame: _this.frame
 						});
 					}
@@ -195,6 +212,7 @@ window.onload = function () {
 					if (input.down) {
 						_this.frame = 8;
 						socket.emit('pushDown01', {
+							x: _this.x,
 							y: _this.y,
 							frame: _this.frame
 						});
@@ -204,9 +222,10 @@ window.onload = function () {
 						_this.scaleX = 1;
 						_this.x -= player_speed;
 						_this.loginName.x -= player_speed;
-						_this.frame = _this.age % 2 + 2;
+						_this.frame = _this.age % 3 + 1;
 						socket.emit('pushLeft01', {
 							x: _this.x,
+							y: _this.y,
 							frame: _this.frame
 						});
 					}
