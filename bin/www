@@ -33,6 +33,7 @@ io.on('connection', socket => {
     playerInfos[socket.id] = playerInfo;
   });
 
+
   // ジャンプ
   socket.on('pushUp01', pos => {
     var playerInfo = playerInfos[socket.id];
@@ -58,7 +59,7 @@ io.on('connection', socket => {
 
     playerInfo.x = pos.x;
     playerInfo.y = pos.y;
-    
+
     playerInfo.frame = pos.frame;
 
     socket.broadcast.emit('pushRight01:' + playerInfo.id, pos);
