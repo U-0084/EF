@@ -4,51 +4,101 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('hoge:server');
-var http = require('http');
-var server = http.Server(app);
-var socketIO = require('socket.io');
-var io = socketIO(server);
+const app = require('../app');
+const debug = require('debug')('hoge:server');
+const http = require('http');
+const server = http.Server(app);
+const socketIO = require('socket.io');
+const io = socketIO(server);
 
+const playerInfos = {};
 
+// クライアントサイドとの通信
+io.on('connection', socket => {
 
+  // ユーザー情報登録
+  socket.on('name', playerInfo => {
+    console.log(`socket id: ${socket.id}, id: ${playerInfo.id} , name: ${playerInfo.loginName}`);
+    if (playerInfos[socket.id]) {
+      return;
+    }
+    socket.broadcast.emit('name', playerInfo);
 
-io.on('connection', function(socket) {
-  socket.on('pushUp01', function() {
-    socket.broadcast.emit('pushUp01');
+    for (var i in playerInfos) {
+      var otherPlayerInfo = playerInfos[i];
+      console.log(`otherPlayerInfo id: ${otherPlayerInfo.id}, name: ${otherPlayerInfo.loginName}`);
+      socket.broadcast.emit('name', otherPlayerInfo);
+    }
+
+    playerInfos[socket.id] = playerInfo;
   });
-  socket.on('pushRight01', function() {
-    socket.broadcast.emit('pushRight01');
-  });
-  socket.on('pushDown01', function() {
-    socket.broadcast.emit('pushDown01');
-  });
-  socket.on('pushLeft01', function() {
-    socket.broadcast.emit('pushLeft01');
-  });
-  // socketIO.emit('sendMessageToClient', {
-  //   value: '入室しました。'
-  // });
 
-  // socket.on('sendMessageToServer', function(data) {
-  //   socketIO.emit('sendMessageToClient', {
-  //     value: data.value
-  //   });
-  // });
+  // ジャンプ
+  socket.on('pushUp01', pos => {
+    var playerInfo = playerInfos[socket.id];
+    if (!playerInfo) {
+      return;
+    }
 
-  // socket.on('disconnect', function() {
-  //   socketIO.emit('sendMessageToClient', {
-  //     value: '退室しました。'
-  //   });
-  // });
+    playerInfo.x = pos.x;
+    playerInfo.y = pos.y;
+    playerInfo.frame = pos.frame;
+
+    console.log(`id: ${playerInfo.id}, name: ${playerInfo.loginName}, x: ${playerInfo.y}, frame: ${playerInfo.frame}`);
+    socket.broadcast.emit('pushUp01:' + playerInfo.id, pos);
+  });
+
+  // 右に移動
+  socket.on('pushRight01', pos => {
+    var playerInfo = playerInfos[socket.id];
+    if (!playerInfo) {
+      return;
+    }
+    // console.log(`id: ${playerInfo.id}, name: ${playerInfo.loginName}, x: ${playerInfo.x}, frame: ${playerInfo.frame}`);
+
+    playerInfo.x = pos.x;
+    playerInfo.y = pos.y;
+    
+    playerInfo.frame = pos.frame;
+
+    socket.broadcast.emit('pushRight01:' + playerInfo.id, pos);
+  });
+
+  socket.on('pushDown01', pos => {
+    var playerInfo = playerInfos[socket.id];
+    if (!playerInfo) {
+      return;
+    }
+
+    playerInfo.x = pos.x;
+    playerInfo.y = pos.y;
+    playerInfo.frame = pos.frame;
+
+    socket.broadcast.emit('pushDown01:' + playerInfo.id, pos);
+  });
+
+  // 左移動
+  socket.on('pushLeft01', pos => {
+    var playerInfo = playerInfos[socket.id];
+    if (!playerInfo) {
+      return;
+    }
+    // console.log(`id: ${playerInfo.id}, name: ${playerInfo.loginName}, x: ${playerInfo.x}, frame: ${playerInfo.frame}`);
+
+    playerInfo.x = pos.x;
+    playerInfo.y = pos.y;
+    playerInfo.frame = pos.frame;
+
+    socket.broadcast.emit('pushLeft01:' + playerInfo.id, pos);
+  });
+
 });
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
@@ -69,7 +119,7 @@ server.listen(app.get('port'), function() {
  */
 
 function normalizePort(val) {
-  var port = parseInt(val, 10);
+  const port = parseInt(val, 10);
 
   if (isNaN(port)) {
     // named pipe

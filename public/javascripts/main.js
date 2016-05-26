@@ -1,6 +1,7 @@
 const serviceName = 'Enginner Fighter';
-const thisServer = 'http://localhost:35729/';
+const thisServer = 'http://localhost:3000/';
 const socket = io.connect(thisServer);
+
 
 const screen_width = 640;
 const screen_height = 290;
@@ -10,66 +11,51 @@ const player01_image = thisServer + 'images/player01.gif';
 const player02_image = thisServer + 'images/player02.gif';
 const bg_battle_image01 = thisServer + 'images/bg_battle01.jpg';
 
+
 const assets = [
 	player01_image,
 	player02_image,
 	bg_battle_image01
 ];
 
-let player01;
-
 // const name = window.prompt('ユーザー名を入力してください');
 
-const player = null;
+let player01;
 
 const playerInfo = {
 	id: '',
-	loginName: name,
+	loginName: 'イギー',
 	x: screen_width / 5,
 	y: 220,
-	settingFile: `${thisServer}data/player01.json`
+	nameX: 0,
+	nameY: 0,
+	frame: 1,
+	settingFile: `${thisServer}data/player01.json`,
+	img: `${thisServer}images/main.png`
 };
-
-// 繋がった時の処理
-socket.on('connect', () => {
-	playerInfo.id = socket.id;
-
-	socket.emit('name', playerInfo);
-
-	socket.on('pushUp01', () => {
-	});
-	socket.on('pushRight01', () => {
-		player01.x = player01.x + 15;
-		player01.frame = player01.age % 2 + 2;
-		// let f_event = document.createEvent("Event");
-		// f_event.initEvent('keydown',true,true);
-		// f_event.keyCode = 39;
-		// document.dispatchEvent(f_event);
-	});
-	socket.on('pushDown01', () => {
-		// let f_event = document.createEvent("Event");
-		// f_event.initEvent('keydown',true,true);
-		// f_event.keyCode = 40;
-		// document.dispatchEvent(f_event);
-	});
-	socket.on('pushLeft01', () => {
-		player01.x = player01.x - 15;
-		player01.loginName.x -= 15;
-		player01.frame = player01.age % 2 + 2;
-		// let f_event = document.createEvent("Event");
-		// f_event.initEvent('keydown',true,true);
-		// f_event.keyCode = 37;
-		// document.dispatchEvent( f_event );
-	});
-});
-
-socket.on('longmessage', (data) => {
-	longpush(data);
-});
+const player = null;
+const otherPlayers = {};
 
 enchant();
 
+// 繋がった時の処理
+socket.on('connect', () => {
+
+	Push.create('Enginner Fighter', {
+		body: `${playerInfo.loginName}がログインしました。`,
+		icon: {
+			x32: `${playerInfo.img}`
+		},
+		timeout: 3000
+	});
+
+	playerInfo.id = socket.id;
+
+	socket.emit('name', playerInfo);
+});
+
 window.onload = () => {
+
 
 	if (window.GamepadEvent) {
 		window.addEventListener('gamepadconnected', e => {
@@ -77,6 +63,7 @@ window.onload = () => {
 			console.log(e.gamepad);
 		});
 	}
+
 
 	const gamepad = navigator.getGamepads && navigator.getGamepads()[0];
 
@@ -95,9 +82,11 @@ window.onload = () => {
 	game.keybind(65, 'a');
 	game.onload = () => {
 
+
 		const root = game.rootScene;
 		const input = game.input;
 		const player_speed = 15;
+
 
 		const LifeP1 = new Entity();
 		LifeP1.width = screen_width / 2 - 10;
@@ -106,6 +95,7 @@ window.onload = () => {
 		LifeP1.y = 10;
 		LifeP1.backgroundColor = '#27e4b2';
 
+
 		const LifeP2 = new Entity();
 		LifeP2.width = -screen_width / 2 + 10;
 		LifeP2.height = 20;
@@ -113,11 +103,75 @@ window.onload = () => {
 		LifeP2.y = 10;
 		LifeP2.backgroundColor = '#27e4b2';
 
+
 		let scene = new Scene();
 		let bg = new Sprite(screen_width, screen_height);
 		bg.image = game.assets[bg_battle_image01];
 		bg.x = 0;
 		bg.y = 0;
+
+
+		socket.on('name', otherPlayerInfo => {
+
+
+			let id = otherPlayerInfo.id;
+			const otherPlayer = otherPlayers[id] = new Sprite(64, 64);
+			otherPlayer.id = id;
+			otherPlayer.x = 0;
+			otherPlayer.y = 0;
+
+
+			otherPlayer.setPosition = pos => {
+				otherPlayer.x = pos.x;
+				otherPlayer.y = pos.y;
+				otherPlayer.frame = pos.frame;
+			}
+			otherPlayer.setPosition.bind(otherPlayerInfo);
+
+
+			// player01のジャンプ
+			socket.on('pushUp01:' + id, pos => {
+				player01.x = pos.x;
+				player01.y = pos.y;
+				player01.frame = pos.frame;
+				console.log(`y: ${player01.y}, frame: ${player01.frame}`);
+			});
+
+
+			// player01の右移動
+			socket.on('pushRight01:' + id, pos => {
+				player01.x = pos.x;
+				player01.y = pos.y;
+				player01.frame = pos.frame;
+				console.log(`x: ${player01.x}, frame: ${player01.frame}`);
+			});
+
+
+			// player01のかかみ
+			socket.on('pushDown01:' + id, pos => {
+				player01.x = pos.x;
+				player01.y = pos.y;
+				player01.frame = pos.frame;
+				console.log(`y: ${player01.y}, frame: ${player01.frame}`);
+			});
+
+　
+			// player01の左移動
+			socket.on('pushLeft01:' + id, pos => {
+
+				// let moveEvent = document.createEvent('Event');
+				// moveEvent.initEvent('keydown', true, true);
+				// moveEvent.keyCode = 37;
+				// document.dispatchEvent(moveEvent);
+
+				player01.x = pos.x;
+				player01.y = pos.y;
+				console.log(`x: ${player01.x}, frame: ${player01.frame}`);
+
+				return;
+			});
+		});
+
 
 		const Player01 = Class.create(Sprite, {
 			initialize: function(playerInfo) {
@@ -145,29 +199,51 @@ window.onload = () => {
 
 					this.frame = 0;
 					this.scaleX = -1;
-					if(input.up && !preInput && !jump) {
-						socket.emit('pushUp01');
+
+					if (input.up && !preInput && !jump) {
 					  gravity = -12.0;
 					  jump = true;
-					  this.frame = 1;
+
 					  this.loginName.y = this.y - 15;
+
+					  socket.emit('pushUp01', {
+					  	x: this.x,
+					  	y: this.y,
+					  	frame: this.frame
+					  });
 					}
 					if (input.right) {
-						socket.emit('pushRight01');
 						this.x += player_speed;
 						this.loginName.x += player_speed;
-						this.frame = this.age % 2 + 2;
+						this.frame = this.age % 3 + 1;
+						socket.emit('pushRight01', {
+							x: this.x,
+							y: this.y,
+							nameX: this.loginName.x,
+							nameY: this.loginName.y,
+							frame: this.frame
+						});
 					}
+
 					if (input.down) {
-						socket.emit('pushDown01');
 						this.frame = 8;
+						socket.emit('pushDown01', {
+							x: this.x,
+							y: this.y,
+							frame: this.frame
+						});
 					}
+
 					if (input.left) {
-						socket.emit('pushLeft01');
 						this.scaleX = 1;
 						this.x -= player_speed;
 						this.loginName.x -= player_speed;
-						this.frame = this.age % 2 + 2;
+						this.frame = this.age % 3 + 1;
+						socket.emit('pushLeft01', {
+							x: this.x,
+							y: this.y,
+							frame: this.frame
+						});
 					}
 
 					this.y += (this.y - ground) + gravity;
@@ -199,6 +275,8 @@ window.onload = () => {
 						this.loginName.y = bottom;
 					}
 				});
+
+				return this;
 			},
 			setSettingFile: function(settingFile) {
 				this.settingFile = settingFile;
@@ -265,12 +343,13 @@ window.onload = () => {
 				});
 			}
 		});
-  
+
 		function Attack01Fuc() {
 			const attack01 = new Attack01();
 			root.addChild(attack01);
 			console.log(attack01);
 		}
+
 
 		function topScene() {
 			let scene = new Scene();
