@@ -2,6 +2,7 @@ import gulp from 'gulp';
 import fs from 'fs';
 import plumber from 'gulp-plumber';
 import BrowserSync from 'browser-sync';
+import eslint from 'gulp-eslint';
 import babel from 'gulp-babel';
 import sass from 'gulp-sass';
 import nodemon from 'gulp-nodemon';
@@ -10,45 +11,54 @@ const browserSync = BrowserSync.create();
 
 
 const path = {
+	server: {
+		www: './bin/www'
+	},
 	scss: {
 		app: './public/stylesheets/sass/style.scss',
-		dest: './public/stylesheets/',
+		dist: './public/stylesheets/',
 		watch: './public/stylesheets/sass/*.scss'
 	},
 	js: {
 		app: './public/javascripts/main.js',
-		dest: './public/javascripts/app/main.js',
+		dist: './public/javascripts/app/',
 		watch: [
 			'./public/javascripts/*.js',
 			'!./public/javascripts/lib/*.js'
-		]
+		],
+		lint: './**/.js'
 	}
-}
+};
+
+
+gulp.task('eslint', () => {
+	return gulp.src(path.js.lint)
+		.pipe(eslint())
+		.pipe(eslint.format())
+		.pipe(reload({
+			stream: true
+		}));
+});
 
 
 gulp.task('babel', () => {
-	return gulp.src([
-			'./public/javascripts/*.js',
-			'!./public/javascripts/lib/*.js'
-		])
+	return gulp.src(path.js.watch)
 		.pipe(plumber())
 		.pipe(babel({
 			presets: ['es2015']
 		}))
-		.pipe(gulp.dest('./public/javascripts/app'));
+		.pipe(gulp.dest(path.js.dist));
 });
 
 
 gulp.task('sass', () => {
-	gulp.src([
-			'./public/stylesheets/sass/*.scss'
-		])
+	gulp.src(path.scss.watch)
 		.pipe(plumber())
 		.pipe(sass())
 		.on('error', err => {
 			console.log(err.message);
 		})
-		.pipe(gulp.dest('./public/stylesheets/'));
+		.pipe(gulp.dest(path.scss.dist));
 });
 
 
@@ -95,4 +105,4 @@ gulp.task('watch', () => {
 });
 
 
-gulp.task('default', ['browser-sync', 'nodemon', 'babel', 'watch']);
+gulp.task('default', ['browser-sync', 'nodemon', 'babel']);

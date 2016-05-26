@@ -350,6 +350,7 @@ window.onload = () => {
 			console.log(attack01);
 		}
 
+
 		function topScene() {
 			let scene = new Scene();
 			let bg = new Sprite(screen_width, screen_height);
