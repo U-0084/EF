@@ -20,64 +20,6 @@ const playerInfo = {
 };
 
 
-const Canvas = {
-	constructor: function(canvasImg) {
-
-		let canvas = document.createElement('canvas');
-		canvas.id = 'canvasWindow';
-		canvas.width = 640;
-		canvas.height = 290;
-		document.body.appendChild(canvas);
-
-		if (!canvas || !canvas.getContext) {
-			return false;
-		}
-
-		let img = new Image();
-		img.src = canvasImg;
-
-		let ctx = canvas.getContext('2d');
-
-		img.onload = () => {
-			ctx.drawImage(img, 0, 0);
-		}
-	}
-}
-
-
-class Player {
-	constructor(x, y) {
-		let img = new Image();
-		img.src = playerInfo.img;
-
-		this.name = playerInfo.loginName;
-		this.img = img.src;
-		this.x = x;
-		this.y = y;
-		this.onenterframe = () => {
-			console.log('hoge');
-		};
-	}
-}
-
-
-class MoveChar {
-	constructor(keyCode) {
-		let moveChar = document.createEvent('Event');
-		moveChar.initEvent('keydown', true, true);
-		moveChar.keyCode = keyCode;
-		document.dispatchEvent(moveChar);
-		console.log(moveChar);
-	}
-}
-
-function battleScene() {
-	Canvas.constructor(`${thisServer}/images/bg_battle01.jpg`);
-	let player01 = new Player(180, 220);
-	console.log(player01);
-}
-
-
 // 繋がった時の処理
 socket.on('connect', () => {
 
@@ -94,6 +36,76 @@ socket.on('connect', () => {
 	socket.emit('name', playerInfo);
 });
 
+
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+
+
+const Canvas = {
+	constructor: function(canvasImg) {
+
+		canvas.id = 'canvasWindow';
+		canvas.width = 640;
+		canvas.height = 290;
+		document.body.appendChild(canvas);
+
+		if (!canvas || !canvas.getContext) {
+			return false;
+		}
+
+		let img = new Image();
+		img.src = canvasImg;
+		img.onload = () => {
+			ctx.drawImage(img, 0, 0);
+		}
+	}
+}
+
+
+class Player {
+	constructor(x, y) {
+		let img = new Image();
+		img.src = playerInfo.img;
+		img.onload = () => {
+			ctx.drawImage(img, 0, 0);
+		}
+
+		this.id = playerInfo.id;
+		this.name = playerInfo.loginName;
+		this.img = img.src;
+		this.x = x;
+		this.y = y;
+	}
+	onkeydown() {
+		document.onkeydown = e => {
+			let keycode = e.keyCode;
+			console.log(e.keyCode);
+		}
+	}
+}
+
+
+class MoveChar {
+	constructor(keyCode) {
+		let moveChar = document.createEvent('Event');
+		moveChar.initEvent('keydown', true, true);
+		moveChar.keyCode = keyCode;
+		document.dispatchEvent(moveChar);
+		console.log(moveChar);
+	}
+}
+
+
+function battleScene() {
+
+	// 背景
+	Canvas.constructor(`${thisServer}/images/bg_battle01.jpg`);
+
+	// player01のインスタンス生成
+	let player01 = new Player(180, 220);
+	console.log(player01);
+
+}
 
 window.onload = () => {
 
