@@ -3306,6 +3306,7 @@ enchant.Map = enchant.Class.create(enchant.Entity, {
         var canvas = surface._element;
         canvas.style.position = 'absolute';
         if (enchant.ENV.RETINA_DISPLAY && core.scale === 2) {
+            canvas.id = 'canvasStage';
             canvas.width = core.width * 2;
             canvas.height = core.height * 2;
             this._style.webkitTransformOrigin = '0 0';
@@ -3592,6 +3593,7 @@ enchant.Map = enchant.Class.create(enchant.Entity, {
 
                         if (core._buffer == null) {
                             core._buffer = document.createElement('canvas');
+                            core._buffer.id = 'canvasStage';
                             core._buffer.width = this._context.canvas.width;
                             core._buffer.height = this._context.canvas.height;
                         }

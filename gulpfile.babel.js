@@ -27,8 +27,7 @@ const path = {
 		app: './public/javascripts/app.js',
 		dist: './public/javascripts/app/',
 		watch: [
-			'./public/javascripts/*.js',
-			'!./public/javascripts/lib/*.js'
+			'./public/javascripts/**/*.js'
 		],
 		lint: './**/.js'
 	}

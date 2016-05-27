@@ -36,26 +36,13 @@ const playerInfo = {
 const player = null;
 const otherPlayers = {};
 
+
 enchant();
 
-// 繋がった時の処理
-socket.on('connect', () => {
-
-	Push.create('Enginner Fighter', {
-		body: `${playerInfo.loginName}がログインしました。`,
-		icon: {
-			x32: `${playerInfo.img}`
-		},
-		timeout: 3000
-	});
-
-	playerInfo.id = socket.id;
-
-	socket.emit('name', playerInfo);
-});
 
 window.onload = () => {
 
+	let canvas = new Canvas();
 
 	if (window.GamepadEvent) {
 		window.addEventListener('gamepadconnected', e => {
@@ -113,7 +100,6 @@ window.onload = () => {
 
 		socket.on('name', otherPlayerInfo => {
 
-
 			let id = otherPlayerInfo.id;
 			const otherPlayer = otherPlayers[id] = new Sprite(64, 64);
 			otherPlayer.id = id;
@@ -134,16 +120,18 @@ window.onload = () => {
 				player01.x = pos.x;
 				player01.y = pos.y;
 				player01.frame = pos.frame;
-				console.log(`y: ${player01.y}, frame: ${player01.frame}`);
+				// console.log(`y: ${player01.y}, frame: ${player01.frame}`);
 			});
 
 
 			// player01の右移動
 			socket.on('pushRight01:' + id, pos => {
+
+				const moveRight01 = new MoveChar(38);
+
 				player01.x = pos.x;
 				player01.y = pos.y;
-				player01.frame = pos.frame;
-				console.log(`x: ${player01.x}, frame: ${player01.frame}`);
+				// console.log(`x: ${player01.x}, frame: ${player01.frame}`);
 			});
 
 
@@ -152,23 +140,18 @@ window.onload = () => {
 				player01.x = pos.x;
 				player01.y = pos.y;
 				player01.frame = pos.frame;
-				console.log(`y: ${player01.y}, frame: ${player01.frame}`);
+				// console.log(`y: ${player01.y}, frame: ${player01.frame}`);
 			});
 
 　
 			// player01の左移動
 			socket.on('pushLeft01:' + id, pos => {
 
-				// let moveEvent = document.createEvent('Event');
-				// moveEvent.initEvent('keydown', true, true);
-				// moveEvent.keyCode = 37;
-				// document.dispatchEvent(moveEvent);
+				const moveRight01 = new MoveChar(37);
 
 				player01.x = pos.x;
 				player01.y = pos.y;
-				console.log(`x: ${player01.x}, frame: ${player01.frame}`);
-
-				return;
+				// console.log(`x: ${player01.x}, frame: ${player01.frame}`);
 			});
 		});
 
@@ -360,23 +343,24 @@ window.onload = () => {
 
 
 		function battleScene() {
-				root.addChild(bg);
-				root.addChild(LifeP1);
-				root.addChild(LifeP2);
 
-				player01 = new Player01(playerInfo);
-				root.addChild(player01);
-				root.addChild(player01.loginName);
+			root.addChild(bg);
+			root.addChild(LifeP1);
+			root.addChild(LifeP2);
 
-				const player02 = new Player02(screen_width / 1.5, 220);
-				root.addChild(player02);
+			player01 = new Player01(playerInfo);
+			root.addChild(player01);
+			root.addChild(player01.loginName);
 
-				const player03 = new Player03(screen_width / 2, 100);
+			const player02 = new Player02(screen_width / 1.5, 220);
+			root.addChild(player02);
 
-				if (player01.x > player02.x) {
-					player01.scaleX = 1;
-					console.log(player01);
-				}
+			const player03 = new Player03(screen_width / 2, 100);
+
+			if (player01.x > player02.x) {
+				player01.scaleX = 1;
+				console.log(player01);
+			}
 			return scene;
 		}
 
