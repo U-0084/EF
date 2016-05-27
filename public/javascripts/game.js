@@ -1,6 +1,12 @@
-const serviceName = 'Enginner Fighter';
+'use  strict';
+
 const thisServer = 'http://localhost:3000';
 const socket = io.connect(thisServer);
+
+
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+const fps = 30;
 
 
 const player = null;
@@ -37,51 +43,46 @@ socket.on('connect', () => {
 });
 
 
-const canvas = document.createElement('canvas');
-const ctx = canvas.getContext('2d');
+function Canvas(canvasImg) {
+	canvas.id = 'canvasWindow';
+	canvas.width = 640;
+	canvas.height = 290;
+	document.body.appendChild(canvas);
 
+	if (!canvas || !canvas.getContext) {
+		return false;
+	}
 
-const Canvas = {
-	constructor: function(canvasImg) {
-
-		canvas.id = 'canvasWindow';
-		canvas.width = 640;
-		canvas.height = 290;
-		document.body.appendChild(canvas);
-
-		if (!canvas || !canvas.getContext) {
-			return false;
-		}
-
-		let img = new Image();
-		img.src = canvasImg;
-		img.onload = () => {
-			ctx.drawImage(img, 0, 0);
-		}
+	let img = new Image();
+	img.src = canvasImg;
+	img.onload = () => {
+		ctx.drawImage(img, 0, 0);
 	}
 }
 
 
 class Player {
+
 	constructor(x, y) {
 		let img = new Image();
 		img.src = playerInfo.img;
 		img.onload = () => {
-			ctx.drawImage(img, 0, 0);
+			ctx.drawImage(img, 0, 0, 64, 64, x, y, 64, 64);
 		}
 
 		this.id = playerInfo.id;
 		this.name = playerInfo.loginName;
 		this.img = img.src;
-		this.x = x;
-		this.y = y;
+		this.scaleX
 	}
+
 	onkeydown() {
 		document.onkeydown = e => {
 			let keycode = e.keyCode;
 			console.log(e.keyCode);
 		}
 	}
+
 }
 
 
@@ -98,8 +99,11 @@ class MoveChar {
 
 function battleScene() {
 
+	ctx.clearRect(0, 0, 640, 290);
+	console.log(ctx);
+
 	// 背景
-	Canvas.constructor(`${thisServer}/images/bg_battle01.jpg`);
+	let canvas = new Canvas(`${thisServer}/images/bg_battle01.jpg`);
 
 	// player01のインスタンス生成
 	let player01 = new Player(180, 220);

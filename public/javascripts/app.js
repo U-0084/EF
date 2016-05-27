@@ -1,4 +1,4 @@
-import $ from 'jquery';
+// import $ from 'jquery';
 import main from './game.js';
 // import enchant from './lib/enchant.js';
 // import avatarEnchant from './lib/avatar.enchant.js';
