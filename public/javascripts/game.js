@@ -73,7 +73,8 @@ class Player {
 		this.id = playerInfo.id;
 		this.name = playerInfo.loginName;
 		this.img = img.src;
-		this.scaleX
+		this.x = x;
+		this.y = y;
 	}
 
 	onkeydown() {
@@ -106,7 +107,7 @@ function battleScene() {
 	let canvas = new Canvas(`${thisServer}/images/bg_battle01.jpg`);
 
 	// player01のインスタンス生成
-	let player01 = new Player(180, 220);
+	let player01 = new Player(128, 220);
 	console.log(player01);
 
 }

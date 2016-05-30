@@ -31,10 +31,37 @@ const playerInfo = {
 	nameY: 0,
 	frame: 1,
 	settingFile: `${thisServer}data/player01.json`,
-	img: `${thisServer}images/main.png`
+	img: `${thisServer}images/main.png`,
+	move: function(keyCode) {
+		let jump = document.createElement('Event');
+		let canvas = document.createElement('canvas');
+		jump.initEvent('keydown', true, true);
+		jump.keyCode = keyCode;
+		canvas.dispatchEvent(jump);
+	}
 };
+console.log(playerInfo);
+
+
 const player = null;
 const otherPlayers = {};
+
+
+// 繋がった時の処理
+socket.on('connect', () => {
+
+	Push.create('Enginner Fighter', {
+		body: `${playerInfo.loginName}がログインしました。`,
+		icon: {
+			x32: `${playerInfo.img}`
+		},
+		timeout: 3000
+	});
+
+	playerInfo.id = socket.id;
+
+	socket.emit('name', playerInfo);
+});
 
 
 enchant();
@@ -42,7 +69,6 @@ enchant();
 
 window.onload = () => {
 
-	let canvas = new Canvas();
 
 	if (window.GamepadEvent) {
 		window.addEventListener('gamepadconnected', e => {
@@ -127,7 +153,16 @@ window.onload = () => {
 			// player01の右移動
 			socket.on('pushRight01:' + id, pos => {
 
-				const moveRight01 = new MoveChar(38);
+
+				let move = document.createEvent('Event');
+				move.initEvent('keydown', true, true);
+				move.keyCode = 39;
+				document.dispatchEvent(move);
+
+				return false;
+
+				console.log(player01);
+				console.log(window);
 
 				player01.x = pos.x;
 				player01.y = pos.y;
@@ -146,12 +181,9 @@ window.onload = () => {
 　
 			// player01の左移動
 			socket.on('pushLeft01:' + id, pos => {
-
-				const moveRight01 = new MoveChar(37);
-
 				player01.x = pos.x;
 				player01.y = pos.y;
-				// console.log(`x: ${player01.x}, frame: ${player01.frame}`);
+				console.log(`x: ${player01.x}, frame: ${player01.frame}`);
 			});
 		});
 
@@ -177,67 +209,69 @@ window.onload = () => {
 				this.loginName.y = this.y - 15;
 				this.frame = 0;
 				this.on('enterframe', () => {
-					let tempy = this.y;
-					let gravity = 1.0;
+					if (playerInfo.id) {
+						let tempy = this.y;
+						let gravity = 1.0;
 
-					this.frame = 0;
-					this.scaleX = -1;
+						this.frame = 0;
+						this.scaleX = -1;
 
-					if (input.up && !preInput && !jump) {
-					  gravity = -12.0;
-					  jump = true;
+						if (input.up && !preInput && !jump) {
+						  gravity = -12.0;
+						  jump = true;
 
-					  this.loginName.y = this.y - 15;
+						  this.loginName.y = this.y - 15;
 
-					  socket.emit('pushUp01', {
-					  	x: this.x,
-					  	y: this.y,
-					  	frame: this.frame
-					  });
+						  socket.emit('pushUp01', {
+						  	x: this.x,
+						  	y: this.y,
+						  	frame: this.frame
+						  });
+						}
+						if (input.right) {
+							this.x += player_speed;
+							this.loginName.x += player_speed;
+							this.frame = this.age % 3 + 1;
+							socket.emit('pushRight01', {
+								x: this.x,
+								y: this.y,
+								nameX: this.loginName.x,
+								nameY: this.loginName.y,
+								frame: this.frame
+							});
+						}
+
+						if (input.down) {
+							this.frame = 8;
+							socket.emit('pushDown01', {
+								x: this.x,
+								y: this.y,
+								frame: this.frame
+							});
+						}
+
+						if (input.left) {
+							this.scaleX = 1;
+							this.x -= player_speed;
+							this.loginName.x -= player_speed;
+							this.frame = this.age % 3 + 1;
+							socket.emit('pushLeft01', {
+								x: this.x,
+								y: this.y,
+								frame: this.frame
+							});
+						}
+
+						this.y += (this.y - ground) + gravity;
+
+						if (this.y > 220) {
+							this.y = 220;
+							jump = false;
+						}
+
+						ground = tempy;
+						preInput = input.up;
 					}
-					if (input.right) {
-						this.x += player_speed;
-						this.loginName.x += player_speed;
-						this.frame = this.age % 3 + 1;
-						socket.emit('pushRight01', {
-							x: this.x,
-							y: this.y,
-							nameX: this.loginName.x,
-							nameY: this.loginName.y,
-							frame: this.frame
-						});
-					}
-
-					if (input.down) {
-						this.frame = 8;
-						socket.emit('pushDown01', {
-							x: this.x,
-							y: this.y,
-							frame: this.frame
-						});
-					}
-
-					if (input.left) {
-						this.scaleX = 1;
-						this.x -= player_speed;
-						this.loginName.x -= player_speed;
-						this.frame = this.age % 3 + 1;
-						socket.emit('pushLeft01', {
-							x: this.x,
-							y: this.y,
-							frame: this.frame
-						});
-					}
-
-					this.y += (this.y - ground) + gravity;
-
-					if (this.y > 220) {
-						this.y = 220;
-						jump = false;
-					}
-
-					ground = tempy;
-					preInput = input.up;
 
 
 					let [left, top] = [0, 0];
