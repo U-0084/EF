@@ -29,7 +29,7 @@ const playerInfo = {
 	y: 220,
 	nameX: 0,
 	nameY: 0,
-	frame: 1,
+	frame: 0,
 	settingFile: `${thisServer}data/player01.json`,
 	img: `${thisServer}images/main.png`,
 	move: function(keyCode) {
@@ -152,37 +152,43 @@ window.onload = () => {
 
 			// player01の右移動
 			socket.on('pushRight01:' + id, pos => {
-
-
-				let move = document.createEvent('Event');
-				move.initEvent('keydown', true, true);
-				move.keyCode = 39;
-				document.dispatchEvent(move);
-
-				return false;
-
-				console.log(player01);
-				console.log(window);
+				// let move = document.createEvent('Event');
+				// move.initEvent('keydown', true, true);
+				// move.keyCode = 39;
+				// document.dispatchEvent(move);
+				// console.log(player01);
+				// console.log(window);
 
 				player01.x = pos.x;
 				player01.y = pos.y;
-				// console.log(`x: ${player01.x}, frame: ${player01.frame}`);
+				player01.frame = pos.frame;
+
+				console.log(`x: ${player01.x}, frame: ${player01.frame}`);
+				console.log(player01.frame);
 			});
 
 
-			// player01のかかみ
+			// player01のかがみ
 			socket.on('pushDown01:' + id, pos => {
 				player01.x = pos.x;
 				player01.y = pos.y;
 				player01.frame = pos.frame;
+
 				// console.log(`y: ${player01.y}, frame: ${player01.frame}`);
 			});
 
 　
 			// player01の左移動
 			socket.on('pushLeft01:' + id, pos => {
+				// let move = document.createEvent('Event');
+				// move.initEvent('keydown', true, true);
+				// move.keyCode = 38;
+				// document.dispatchEvent(move);
+
 				player01.x = pos.x;
 				player01.y = pos.y;
+				player01.frame = pos.frame;
+
 				console.log(`x: ${player01.x}, frame: ${player01.frame}`);
 			});
 		});
@@ -207,7 +213,7 @@ window.onload = () => {
 				this.loginName.color = 'black';
 				this.loginName.x = this.x + 10;
 				this.loginName.y = this.y - 15;
-				this.frame = 0;
+				this.frame = this.playerInfo.frame;
 				this.on('enterframe', () => {
 					if (playerInfo.id) {
 						let tempy = this.y;
@@ -235,8 +241,6 @@ window.onload = () => {
 							socket.emit('pushRight01', {
 								x: this.x,
 								y: this.y,
-								nameX: this.loginName.x,
-								nameY: this.loginName.y,
 								frame: this.frame
 							});
 						}

@@ -45,7 +45,7 @@ io.on('connection', socket => {
     playerInfo.y = pos.y;
     playerInfo.frame = pos.frame;
 
-    console.log(`id: ${playerInfo.id}, name: ${playerInfo.loginName}, x: ${playerInfo.y}, frame: ${playerInfo.frame}`);
+    // console.log(`id: ${playerInfo.id}, name: ${playerInfo.loginName}, x: ${playerInfo.y}, frame: ${playerInfo.frame}`);
     socket.broadcast.emit('pushUp01:' + playerInfo.id, pos);
   });
 
@@ -55,11 +55,10 @@ io.on('connection', socket => {
     if (!playerInfo) {
       return;
     }
-    // console.log(`id: ${playerInfo.id}, name: ${playerInfo.loginName}, x: ${playerInfo.x}, frame: ${playerInfo.frame}`);
+    console.log(`id: ${playerInfo.id}, name: ${playerInfo.loginName}, x: ${playerInfo.x}, frame: ${playerInfo.frame}`);
 
     playerInfo.x = pos.x;
     playerInfo.y = pos.y;
-
     playerInfo.frame = pos.frame;
 
     socket.broadcast.emit('pushRight01:' + playerInfo.id, pos);
@@ -84,7 +83,7 @@ io.on('connection', socket => {
     if (!playerInfo) {
       return;
     }
-    // console.log(`id: ${playerInfo.id}, name: ${playerInfo.loginName}, x: ${playerInfo.x}, frame: ${playerInfo.frame}`);
+    console.log(`id: ${playerInfo.id}, name: ${playerInfo.loginName}, x: ${playerInfo.x}, frame: ${playerInfo.frame}`);
 
     playerInfo.x = pos.x;
     playerInfo.y = pos.y;
