@@ -164,6 +164,7 @@ window.onload = () => {
 				player01.frame = pos.frame;
 
 				console.log(`x: ${player01.x}, frame: ${player01.frame}`);
+				console.log(player01);
 				console.log(player01.frame);
 			});
 

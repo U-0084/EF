@@ -16,6 +16,7 @@ const playerInfos = {};
 // クライアントサイドとの通信
 io.on('connection', socket => {
 
+
   // ユーザー情報登録
   socket.on('name', playerInfo => {
     console.log(`socket id: ${socket.id}, id: ${playerInfo.id} , name: ${playerInfo.loginName}`);
@@ -49,6 +50,7 @@ io.on('connection', socket => {
     socket.broadcast.emit('pushUp01:' + playerInfo.id, pos);
   });
 
+
   // 右に移動
   socket.on('pushRight01', pos => {
     var playerInfo = playerInfos[socket.id];
@@ -64,6 +66,7 @@ io.on('connection', socket => {
     socket.broadcast.emit('pushRight01:' + playerInfo.id, pos);
   });
 
+
   socket.on('pushDown01', pos => {
     var playerInfo = playerInfos[socket.id];
     if (!playerInfo) {
@@ -76,6 +79,7 @@ io.on('connection', socket => {
 
     socket.broadcast.emit('pushDown01:' + playerInfo.id, pos);
   });
+
 
   // 左移動
   socket.on('pushLeft01', pos => {
@@ -90,6 +94,11 @@ io.on('connection', socket => {
     playerInfo.frame = pos.frame;
 
     socket.broadcast.emit('pushLeft01:' + playerInfo.id, pos);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('DISCONNECT');
+    socket.broa
   });
 
 });

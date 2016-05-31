@@ -11,7 +11,7 @@ import buffer from 'vinyl-buffer';
 import BrowserSync from 'browser-sync';
 
 const browserSync = BrowserSync.create();
-const reload = browserSync.reload;
+const reload = browserSync.reload; 
 
 
 const path = {
