@@ -1,7 +1,6 @@
-const serviceName = 'Enginner Fighter';
-const thisServer = 'http://localhost:3000/';
-const socket = io.connect(thisServer);
-
+const serviceName = 'Enginner Fighter',
+      thisServer = 'http://localhost:3000/',
+      socket = io.connect(thisServer);
 
 const screen_width = 640;
 const screen_height = 290;
@@ -22,46 +21,11 @@ const assets = [
 
 let player01;
 
-const playerInfo = {
-	id: '',
-	loginName: 'イギー',
-	x: screen_width / 5,
-	y: 220,
-	nameX: 0,
-	nameY: 0,
-	frame: 0,
-	settingFile: `${thisServer}data/player01.json`,
-	img: `${thisServer}images/main.png`,
-	move: function(keyCode) {
-		let jump = document.createElement('Event');
-		let canvas = document.createElement('canvas');
-		jump.initEvent('keydown', true, true);
-		jump.keyCode = keyCode;
-		canvas.dispatchEvent(jump);
-	}
-};
 console.log(playerInfo);
 
 
 const player = null;
 const otherPlayers = {};
-
-
-// 繋がった時の処理
-socket.on('connect', () => {
-
-	Push.create('Enginner Fighter', {
-		body: `${playerInfo.loginName}がログインしました。`,
-		icon: {
-			x32: `${playerInfo.img}`
-		},
-		timeout: 3000
-	});
-
-	playerInfo.id = socket.id;
-
-	socket.emit('name', playerInfo);
-});
 
 
 enchant();

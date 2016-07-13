@@ -14,7 +14,19 @@ const io = socketIO(server);
 const playerInfos = {};
 
 // クライアントサイドとの通信
-io.on('connection', socket => {
+io.sockets.on('connection', socket => {
+
+  socket.on('connected', name => {
+    var msg = `${name}さんがログインしました。`;
+    playerInfos[socket.id] = name;
+    io.sockets.emit('publish', {value: msg});
+  });
+
+
+  socket.on('publish', data => {
+    io.sockets.emit('publish', {value: data.value});
+    console.log(data.value);
+  });
 
 
   // ユーザー情報登録
@@ -24,7 +36,6 @@ io.on('connection', socket => {
       return;
     }
     socket.broadcast.emit('name', playerInfo);
-
     for (var i in playerInfos) {
       var otherPlayerInfo = playerInfos[i];
       console.log(`otherPlayerInfo id: ${otherPlayerInfo.id}, name: ${otherPlayerInfo.loginName}`);
@@ -97,8 +108,11 @@ io.on('connection', socket => {
   });
 
   socket.on('disconnect', () => {
-    console.log('DISCONNECT');
-    socket.broa
+    if (playerInfos[socket.id]) {
+    var msg = `${playerInfos[socket.id]}がログアウトしました。`;
+    delete playerInfos[socket.id];
+    io.sockets.emit('publish', {value: msg});
+    }
   });
 
 });

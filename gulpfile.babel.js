@@ -99,7 +99,8 @@ gulp.task('browser-sync', ['nodemon'], () => {
 			target: 'http://localhost:3000',
 			ws: true
 		},
-		port: 9000
+		port: 9000,
+		open: 'external'
 	});
 });
 

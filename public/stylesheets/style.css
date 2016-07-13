@@ -32,7 +32,8 @@ article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
   display: block; }
 
-nav ul {
+nav,
+ul {
   list-style: none; }
 
 blockquote, q {
@@ -86,6 +87,9 @@ hr {
 input, select {
   vertical-align: middle; }
 
+* {
+  box-sizing: border-box; }
+
 html,
 body {
   overflow-y: hidden; }
@@ -94,6 +98,8 @@ body {
   display: flex;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   background-color: #222c37; }
+  body.lobby {
+    background-color: #f9f3e9; }
 
 a {
   color: #00B7FF; }
@@ -103,15 +109,40 @@ a {
   display: block;
   clear: both; }
 
-.chat__wrap {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background-color: #fffaef;
-  box-sizing: border-box; }
+.wrapper {
+  padding: 20px; }
 
-.chat__ttl {
-  padding: 10px 20px;
+.inputArea__wrap {
+  display: flex;
+  justify-content: space-between;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  padding: 20px;
+  border-top: 1px solid #ddd;
+  background-color: #fff; }
+
+#inputArea__msg {
+  width: 86%;
+  margin-right: 20px;
+  height: 2em;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  transition: .3s; }
+  #inputArea__msg:focus {
+    height: 60px;
+    vertical-align: top;
+    transition: .3s; }
+
+.inputArea__btn {
+  width: 100%;
+  max-width: 100px;
+  padding: 4px 10px;
   color: #fff;
-  background-color: #27e4b2;
-  border-bottom: 1px solid #27c39a; }
+  font-size: 16px;
+  background-color: #5f8ed5;
+  text-align: center;
+  border: none;
+  border-radius: 10px; }
