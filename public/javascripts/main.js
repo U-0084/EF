@@ -17,15 +17,40 @@ const assets = [
 	bg_battle_image01
 ];
 
-// const name = window.prompt('ユーザー名を入力してください');
-
 let player01;
+
+const playerInfo = {
+	id: '',
+	loginName: 'hoge',
+	x: 128,
+	y: 220,
+	nameX: 0,
+	nameY: 0,
+	frame: 1
+};
 
 console.log(playerInfo);
 
 
 const player = null;
 const otherPlayers = {};
+
+// 繋がった時の処理
+socket.on('connect', () => {
+
+	Push.create('Enginner Fighter', {
+		body: `${playerInfo.loginName}がログインしました。`,
+		icon: {
+			x32: `${playerInfo.img}`
+		},
+		timeout: 3000
+	});
+
+	playerInfo.id = socket.id;
+
+	socket.emit('name', playerInfo);
+});
+
 
 
 enchant();
@@ -107,6 +132,7 @@ window.onload = () => {
 
 			// player01のジャンプ
 			socket.on('pushUp01:' + id, pos => {
+				console.log(id);
 				player01.x = pos.x;
 				player01.y = pos.y;
 				player01.frame = pos.frame;

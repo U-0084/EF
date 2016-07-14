@@ -31,6 +31,12 @@ a {
 }
 .wrapper {
   padding: 20px;
+  width: 100%;
+}
+#msgList {
+  padding-bottom: 73px;
+  height: auto;
+  overflow-y: scroll;
 }
 .inputArea__wrap {
   display: flex;

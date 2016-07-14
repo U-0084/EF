@@ -9,35 +9,52 @@ const debug = require('debug')('hoge:server');
 const http = require('http');
 const server = http.Server(app);
 const socketIO = require('socket.io');
+const fs = require('fs');
 const io = socketIO(server);
 
 const playerInfos = {};
 
 // クライアントサイドとの通信
-io.sockets.on('connection', socket => {
+io.on('connection', socket => {
 
+  // チャットコントロール
   socket.on('connected', name => {
     var msg = `${name}さんがログインしました。`;
+
     playerInfos[socket.id] = name;
     io.sockets.emit('publish', {value: msg});
   });
 
-
   socket.on('publish', data => {
+    var playerInfo = playerInfos[socket.id];
+
+    if (!playerInfo) {
+      return;
+    }
     io.sockets.emit('publish', {value: data.value});
     console.log(data.value);
   });
 
+  socket.on('disconnect', () => {
+    var playerInfo = playerInfos[socket.id];
+
+    if (playerInfo) {
+      var msg = `${playerInfos[socket.id]}がログアウトしました。`;
+
+      delete playerInfo;
+      io.sockets.emit('publish', {value: msg});
+    }
+  });
 
   // ユーザー情報登録
   socket.on('name', playerInfo => {
-    console.log(`socket id: ${socket.id}, id: ${playerInfo.id} , name: ${playerInfo.loginName}`);
     if (playerInfos[socket.id]) {
       return;
     }
     socket.broadcast.emit('name', playerInfo);
     for (var i in playerInfos) {
       var otherPlayerInfo = playerInfos[i];
+
       console.log(`otherPlayerInfo id: ${otherPlayerInfo.id}, name: ${otherPlayerInfo.loginName}`);
       socket.broadcast.emit('name', otherPlayerInfo);
     }
@@ -48,17 +65,17 @@ io.sockets.on('connection', socket => {
 
   // ジャンプ
   socket.on('pushUp01', pos => {
+    console.log('ジャンプしたよ');
     var playerInfo = playerInfos[socket.id];
     if (!playerInfo) {
       return;
     }
-
     playerInfo.x = pos.x;
     playerInfo.y = pos.y;
     playerInfo.frame = pos.frame;
 
     // console.log(`id: ${playerInfo.id}, name: ${playerInfo.loginName}, x: ${playerInfo.y}, frame: ${playerInfo.frame}`);
-    socket.broadcast.emit('pushUp01:' + playerInfo.id, pos);
+    socket.broadcast.emit('pushUp01:' + playerInfos.id, pos);
   });
 
 
@@ -106,15 +123,6 @@ io.sockets.on('connection', socket => {
 
     socket.broadcast.emit('pushLeft01:' + playerInfo.id, pos);
   });
-
-  socket.on('disconnect', () => {
-    if (playerInfos[socket.id]) {
-    var msg = `${playerInfos[socket.id]}がログアウトしました。`;
-    delete playerInfos[socket.id];
-    io.sockets.emit('publish', {value: msg});
-    }
-  });
-
 });
 
 /**
