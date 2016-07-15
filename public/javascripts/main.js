@@ -82,13 +82,11 @@ window.onload = () => {
 	game.fps = 30;
 	game.keybind(32, 'space');
 	game.keybind(65, 'a');
+	game.keybind(83, 's');
 	game.onload = () => {
-
-
-		const root = game.rootScene;
-		const input = game.input;
-		const player_speed = 15;
-
+		const root = game.rootScene,
+					input = game.input,
+					player_speed = 15;
 
 		const LifeP1 = new Entity();
 		LifeP1.width = screen_width / 2 - 10;
@@ -97,7 +95,6 @@ window.onload = () => {
 		LifeP1.y = 10;
 		LifeP1.backgroundColor = '#27e4b2';
 
-
 		const LifeP2 = new Entity();
 		LifeP2.width = -screen_width / 2 + 10;
 		LifeP2.height = 20;
@@ -105,13 +102,11 @@ window.onload = () => {
 		LifeP2.y = 10;
 		LifeP2.backgroundColor = '#27e4b2';
 
-
 		let scene = new Scene();
 		let bg = new Sprite(screen_width, screen_height);
 		bg.image = game.assets[bg_battle_image01];
 		bg.x = 0;
 		bg.y = 0;
-
 
 		socket.on('name', otherPlayerInfo => {
 
@@ -167,7 +162,6 @@ window.onload = () => {
 
 				// console.log(`y: ${player01.y}, frame: ${player01.frame}`);
 			});
-
 　
 			// player01の左移動
 			socket.on('pushLeft01:' + id, pos => {
@@ -184,7 +178,6 @@ window.onload = () => {
 			});
 		});
 
-
 		const Player01 = Class.create(Sprite, {
 			initialize: function(playerInfo) {
 				let ground = 220;
@@ -198,6 +191,7 @@ window.onload = () => {
 				this.scaleX = -1;
 				this.x = this.playerInfo.x;
 				this.y = this.playerInfo.y;
+				this.width = 64;
 				// 名前
 				this.loginName = new Label(this.playerInfo.loginName);
 				this.loginName.width = 100;
@@ -205,6 +199,13 @@ window.onload = () => {
 				this.loginName.x = this.x + 10;
 				this.loginName.y = this.y - 15;
 				this.frame = this.playerInfo.frame;
+				// 衝突判定
+				this.entity = new Entity();
+				this.entity.x = this.x;
+				this.entity.y = this.y;
+				this.entity.width = 64;
+				this.entity.height = 64;
+				this.entity.backgroundColor = 'blue';
 				this.on('enterframe', () => {
 					if (playerInfo.id) {
 						let tempy = this.y;
@@ -244,7 +245,6 @@ window.onload = () => {
 								frame: this.frame
 							});
 						}
-
 						if (input.left) {
 							this.scaleX = 1;
 							this.x -= player_speed;
@@ -256,18 +256,22 @@ window.onload = () => {
 								frame: this.frame
 							});
 						}
-
+						if (input.a) {
+							this.x += 100;
+							this.frame = this.age % 3 + 9;
+						}
+						if (input.s) {
+							this.x += 2;
+							this.frame = this.age % 2 + 4;
+						}
 						this.y += (this.y - ground) + gravity;
-
 						if (this.y > 220) {
 							this.y = 220;
 							jump = false;
 						}
-
 						ground = tempy;
 						preInput = input.up;
 					}
-
 
 					let [left, top] = [0, 0];
 					let [right, bottom] = [screen_width - this.width, screen_height - this.heigh];
@@ -356,6 +360,13 @@ window.onload = () => {
 			}
 		});
 
+		var attackIntersect = () => {
+			if (player01.intersect(player02)) {
+				player02.removeEnterListener('enterframe', attackIntersect);
+				console.log('ぶつかった');
+			}
+		}
+
 		function Attack01Fuc() {
 			const attack01 = new Attack01();
 			root.addChild(attack01);
@@ -370,33 +381,26 @@ window.onload = () => {
 			return scene;
 		}
 
-
 		function battleScene() {
-
 			root.addChild(bg);
 			root.addChild(LifeP1);
 			root.addChild(LifeP2);
-
-			player01 = new Player01(playerInfo);
-			root.addChild(player01);
+			const player01 = new Player01(playerInfo);
+			root.addChild(player01, attackIntersect);
 			root.addChild(player01.loginName);
 
 			const player02 = new Player02(screen_width / 1.5, 220);
-			root.addChild(player02);
+			root.addChild(player02, attackIntersect);
 
-			const player03 = new Player03(screen_width / 2, 100);
-
-			if (player01.x > player02.x) {
-				player01.scaleX = 1;
-				console.log(player01);
-			}
+			const distance = (player01Entity.width + player01.width) / 2;
+			// if (player01.within(player01Entity, distance) === true) {
+			// 	player01Entity.backgroundColor = 'red';
+			// }
+			console.log(distance);
 			return scene;
 		}
 
 		game.rootScene.on('enterframe', () => {
-
-			topScene();
-
 			if (game.input.space) {
 				battleScene();
 			}
