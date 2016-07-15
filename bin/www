@@ -55,52 +55,56 @@ io.on('connection', socket => {
     for (var i in playerInfos) {
       var otherPlayerInfo = playerInfos[i];
 
-      console.log(`otherPlayerInfo id: ${otherPlayerInfo.id}, name: ${otherPlayerInfo.loginName}`);
+      console.log(`
+        id: ${otherPlayerInfo.id},
+        name: ${otherPlayerInfo.loginName}
+      `);
       socket.broadcast.emit('name', otherPlayerInfo);
     }
-
     playerInfos[socket.id] = playerInfo;
   });
 
-
   // ジャンプ
   socket.on('pushUp01', pos => {
-    console.log('ジャンプしたよ');
     var playerInfo = playerInfos[socket.id];
-    if (!playerInfo) {
-      return;
-    }
+
     playerInfo.x = pos.x;
     playerInfo.y = pos.y;
     playerInfo.frame = pos.frame;
-
-    // console.log(`id: ${playerInfo.id}, name: ${playerInfo.loginName}, x: ${playerInfo.y}, frame: ${playerInfo.frame}`);
-    socket.broadcast.emit('pushUp01:' + playerInfos.id, pos);
+    console.log(`
+      id: ${playerInfo.id},
+      name: ${playerInfo.loginName},
+      x: ${playerInfo.y},
+      frame: ${playerInfo.frame}
+    `);
+    socket.broadcast.emit('pushUp01:' + playerInfo.id, pos);
   });
-
 
   // 右に移動
   socket.on('pushRight01', pos => {
     var playerInfo = playerInfos[socket.id];
+
     if (!playerInfo) {
       return;
     }
-    console.log(`id: ${playerInfo.id}, name: ${playerInfo.loginName}, x: ${playerInfo.x}, frame: ${playerInfo.frame}`);
-
+    console.log(`
+      id: ${playerInfo.id},
+      name: ${playerInfo.loginName},
+      x: ${playerInfo.x},
+      frame: ${playerInfo.frame}
+    `);
     playerInfo.x = pos.x;
     playerInfo.y = pos.y;
     playerInfo.frame = pos.frame;
-
     socket.broadcast.emit('pushRight01:' + playerInfo.id, pos);
   });
 
-
   socket.on('pushDown01', pos => {
     var playerInfo = playerInfos[socket.id];
+
     if (!playerInfo) {
       return;
     }
-
     playerInfo.x = pos.x;
     playerInfo.y = pos.y;
     playerInfo.frame = pos.frame;
@@ -108,20 +112,34 @@ io.on('connection', socket => {
     socket.broadcast.emit('pushDown01:' + playerInfo.id, pos);
   });
 
-
-  // 左移動
   socket.on('pushLeft01', pos => {
     var playerInfo = playerInfos[socket.id];
     if (!playerInfo) {
       return;
     }
-    console.log(`id: ${playerInfo.id}, name: ${playerInfo.loginName}, x: ${playerInfo.x}, frame: ${playerInfo.frame}`);
-
+    console.log(`
+      id: ${playerInfo.id},
+      name: ${playerInfo.loginName},
+      x: ${playerInfo.x},
+      frame: ${playerInfo.frame}
+    `);
     playerInfo.x = pos.x;
     playerInfo.y = pos.y;
     playerInfo.frame = pos.frame;
-
     socket.broadcast.emit('pushLeft01:' + playerInfo.id, pos);
+  });
+
+  socket.on('attackA01', pos => {
+    var playerInfo = playerInfos[socket.id];
+
+    if (!playerInfo) {
+      return;
+    }
+    playerInfo.x = pos.x;
+    playerInfo.y = pos.y;
+    playerInfo.frame = pos.frame;
+    socket.broadcast.emit('attackA01:' + playerInfo.id, pos);
+    console.log(pos);
   });
 });
 

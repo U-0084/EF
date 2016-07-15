@@ -26,18 +26,14 @@ const playerInfo = {
 	y: 220,
 	nameX: 0,
 	nameY: 0,
-	frame: 1
+	frame: 0
 };
-
-console.log(playerInfo);
-
 
 const player = null;
 const otherPlayers = {};
 
 // 繋がった時の処理
 socket.on('connect', () => {
-
 	Push.create('Enginner Fighter', {
 		body: `${playerInfo.loginName}がログインしました。`,
 		icon: {
@@ -45,38 +41,13 @@ socket.on('connect', () => {
 		},
 		timeout: 3000
 	});
-
 	playerInfo.id = socket.id;
-
 	socket.emit('name', playerInfo);
 });
 
-
-
 enchant();
 
-
 window.onload = () => {
-
-
-	if (window.GamepadEvent) {
-		window.addEventListener('gamepadconnected', e => {
-			console.log("ゲームパッドが接続されました。");
-			console.log(e.gamepad);
-		});
-	}
-
-
-	const gamepad = navigator.getGamepads && navigator.getGamepads()[0];
-
-
-	function errorLog() {
-		console.log("Fail!");
-		console.log(XMLHttpRequest.status);
-		console.log(textStatus);
-	}
-
-
 	const game = new Game(screen_width, screen_height);
 	game.preload(assets);
 	game.fps = 30;
@@ -109,13 +80,13 @@ window.onload = () => {
 		bg.y = 0;
 
 		socket.on('name', otherPlayerInfo => {
-
 			let id = otherPlayerInfo.id;
 			const otherPlayer = otherPlayers[id] = new Sprite(64, 64);
+
 			otherPlayer.id = id;
 			otherPlayer.x = 0;
 			otherPlayer.y = 0;
-
+			otherPlayer.frame = 1;
 
 			otherPlayer.setPosition = pos => {
 				otherPlayer.x = pos.x;
@@ -124,70 +95,57 @@ window.onload = () => {
 			}
 			otherPlayer.setPosition.bind(otherPlayerInfo);
 
-
 			// player01のジャンプ
 			socket.on('pushUp01:' + id, pos => {
-				console.log(id);
 				player01.x = pos.x;
 				player01.y = pos.y;
 				player01.frame = pos.frame;
-				// console.log(`y: ${player01.y}, frame: ${player01.frame}`);
+				console.log(`y: ${player01.y}, frame: ${player01.frame}`);
 			});
-
 
 			// player01の右移動
 			socket.on('pushRight01:' + id, pos => {
-				// let move = document.createEvent('Event');
-				// move.initEvent('keydown', true, true);
-				// move.keyCode = 39;
-				// document.dispatchEvent(move);
-				// console.log(player01);
-				// console.log(window);
-
 				player01.x = pos.x;
 				player01.y = pos.y;
 				player01.frame = pos.frame;
-
 				console.log(`x: ${player01.x}, frame: ${player01.frame}`);
-				console.log(player01);
-				console.log(player01.frame);
 			});
-
 
 			// player01のかがみ
 			socket.on('pushDown01:' + id, pos => {
 				player01.x = pos.x;
 				player01.y = pos.y;
 				player01.frame = pos.frame;
-
-				// console.log(`y: ${player01.y}, frame: ${player01.frame}`);
 			});
 　
 			// player01の左移動
 			socket.on('pushLeft01:' + id, pos => {
-				// let move = document.createEvent('Event');
-				// move.initEvent('keydown', true, true);
-				// move.keyCode = 38;
-				// document.dispatchEvent(move);
-
 				player01.x = pos.x;
 				player01.y = pos.y;
 				player01.frame = pos.frame;
-
 				console.log(`x: ${player01.x}, frame: ${player01.frame}`);
+			});
+
+			socket.on('attackA01:' + id, pos => {
+				player01.x = pos.x;
+				player01.y = pos.y;
+				player01.frame = pos.frame;
+				console.log(player01);
+				console.log(player01.frame);
 			});
 		});
 
 		const Player01 = Class.create(Sprite, {
 			initialize: function(playerInfo) {
-				let ground = 220;
-				let preInput = false;
-				let jump = false;
+				let ground = 220,
+						preInput = false,
+						jump = false;
 
 				Sprite.call(this, 64, 64);
 				this.playerInfo = playerInfo;
 				this.setSettingFile(playerInfo.settingFile);
 				this.image = game.assets[player01_image];
+				this.frame = this.playerInfo.frame;
 				this.scaleX = -1;
 				this.x = this.playerInfo.x;
 				this.y = this.playerInfo.y;
@@ -198,7 +156,6 @@ window.onload = () => {
 				this.loginName.color = 'black';
 				this.loginName.x = this.x + 10;
 				this.loginName.y = this.y - 15;
-				this.frame = this.playerInfo.frame;
 				// 衝突判定
 				this.entity = new Entity();
 				this.entity.x = this.x;
@@ -208,18 +165,15 @@ window.onload = () => {
 				this.entity.backgroundColor = 'blue';
 				this.on('enterframe', () => {
 					if (playerInfo.id) {
-						let tempy = this.y;
-						let gravity = 1.0;
+						let tempy = this.y,
+								gravity = 1.0;
 
-						this.frame = 0;
+						this.frame = this.playerInfo.frame;
 						this.scaleX = -1;
-
 						if (input.up && !preInput && !jump) {
 						  gravity = -12.0;
 						  jump = true;
-
 						  this.loginName.y = this.y - 15;
-
 						  socket.emit('pushUp01', {
 						  	x: this.x,
 						  	y: this.y,
@@ -236,7 +190,6 @@ window.onload = () => {
 								frame: this.frame
 							});
 						}
-
 						if (input.down) {
 							this.frame = 8;
 							socket.emit('pushDown01', {
@@ -257,11 +210,16 @@ window.onload = () => {
 							});
 						}
 						if (input.a) {
-							this.x += 100;
+							this.x += 50;
 							this.frame = this.age % 3 + 9;
+							socket.emit('attackA01', {
+								x: this.x,
+								y: this.y,
+								frame: this.frame
+							});
 						}
 						if (input.s) {
-							this.x += 2;
+							this.x += 10;
 							this.frame = this.age % 2 + 4;
 						}
 						this.y += (this.y - ground) + gravity;
@@ -385,18 +343,19 @@ window.onload = () => {
 			root.addChild(bg);
 			root.addChild(LifeP1);
 			root.addChild(LifeP2);
-			const player01 = new Player01(playerInfo);
+			player01 = new Player01(playerInfo);
 			root.addChild(player01, attackIntersect);
 			root.addChild(player01.loginName);
+
+			console.log(player01.frame);
 
 			const player02 = new Player02(screen_width / 1.5, 220);
 			root.addChild(player02, attackIntersect);
 
-			const distance = (player01Entity.width + player01.width) / 2;
+			// const distance = (player01Entity.width + player01.width) / 2;
 			// if (player01.within(player01Entity, distance) === true) {
 			// 	player01Entity.backgroundColor = 'red';
 			// }
-			console.log(distance);
 			return scene;
 		}
 
